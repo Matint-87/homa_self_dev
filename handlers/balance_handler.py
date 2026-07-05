@@ -23,10 +23,13 @@ def register_balance_handler(client):
         # فرمت کردن عدد (مثلا ۱,۰۰۰)
         formatted_balance = "{:,}".format(current_balance)
 
+        toman_balance = formatted_balance * 35
+
         text = (
             f"👤 <b>کاربر:</b> {user.username if user.username else user.first_name}\n"
             f"🆔 <b>آیدی عددی:</b> <code>{user.id}</code>\n"
-            f"💰 <b>طلای شما:</b> <code>{formatted_balance}</code> طلا"
+            f"💰 <b>طلای شما:</b> <code>{formatted_balance}</code> طلا\n"
+            f"💵 <b>معادل تومان:</b> <code>{toman_balance:,}</code> تومان"
         )
 
         # پاسخ به صورت ریپلای
