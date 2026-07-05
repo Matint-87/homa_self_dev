@@ -88,8 +88,8 @@ async def attach_game_buttons(update, context):
     bot_username = context.bot.username
 
     keyboard = [
-        [InlineKeyboardButton("🤝 قبول چالش و ورود", url=f"https://t.me/{bot_username}?start={game_num}")],
-        [InlineKeyboardButton("❌ لغو بازی", callback_data=f"cancel_{game_num}")]
+        [InlineKeyboardButton("🤝 قبول چالش و ورود", url=f"https://t.me/{bot_username}?start={game_num}", style="success")],
+        [InlineKeyboardButton("❌ لغو بازی", callback_data=f"cancel_{game_num}", style="danger")]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 

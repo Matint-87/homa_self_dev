@@ -35,11 +35,11 @@ def get_calculator_keyboard(owner_id):
         [
             InlineKeyboardButton("0", callback_data=f"clc_0_{owner_id}"),
             InlineKeyboardButton(".", callback_data=f"clc_dot_{owner_id}"),
-            InlineKeyboardButton("=", callback_data=f"clc_equal_{owner_id}"),
+            InlineKeyboardButton("=", callback_data=f"clc_equal_{owner_id}", style="primary"),
             InlineKeyboardButton("+", callback_data=f"clc_add_{owner_id}")
         ],
         [
-            InlineKeyboardButton("C", callback_data=f"clc_clear_{owner_id}"),
+            InlineKeyboardButton("C", callback_data=f"clc_clear_{owner_id}", style="danger"),
             InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")
         ]
     ])
@@ -57,9 +57,12 @@ async def get_locks_keyboard(owner_id):
     def status_emoji(key):
         return "✅" if locks.get(key, False) else "❌"
 
+    def status_color(key):
+        return "success" if locks.get(key, False) else "danger"
+
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton(f"قفل یوزرنیم ({status_emoji('username')})", callback_data=f"tog_username_{owner_id}"),
+            InlineKeyboardButton(f"قفل یوزرنیم ({status_emoji('username')})", callback_data=f"tog_username_{owner_id}", style=f"{status_color('username')}"),
             InlineKeyboardButton(f"قفل لینک ({status_emoji('link')})", callback_data=f"tog_link_{owner_id}")
         ],
         [
