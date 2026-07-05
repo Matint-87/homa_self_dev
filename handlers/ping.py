@@ -1,8 +1,6 @@
 from datetime import datetime, timezone
 from telethon import events
-from decorators import require_balance
 
-@require_balance
 async def ping_handler(event):
     try:
         me = await event.client.get_me()
