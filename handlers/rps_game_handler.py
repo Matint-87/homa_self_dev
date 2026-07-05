@@ -111,8 +111,8 @@ async def start_rps_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     keyboard = InlineKeyboardMarkup([
         [
-            InlineKeyboardButton("✅ قبول", callback_data=f"rps_join_{game_id}", style="success"),
-            InlineKeyboardButton("❌ لغو بازی", callback_data=f"rps_cancel_{game_id}", style="danger")
+            InlineKeyboardButton("قبول", callback_data=f"rps_join_{game_id}", style="success"),
+            InlineKeyboardButton("لغو بازی", callback_data=f"rps_cancel_{game_id}", style="danger")
         ]
     ])
 

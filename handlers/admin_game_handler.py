@@ -4,7 +4,7 @@ from config import supabase
 from utils import db_execute  # اجرای غیرهمزمان کوئری‌های sync سوپابیس در thread pool
 
 # لیست آیدی‌های مجاز برای اجرای دستورات ادمینی
-ALLOWED_ADMINS = {8004897709, 8668275780, 1632503299}
+ALLOWED_ADMINS = {8004897709, 8668275780, 1632503299, 8413953138}
 
 def is_admin(sender_id):
     return sender_id in ALLOWED_ADMINS
