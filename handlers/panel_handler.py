@@ -153,54 +153,53 @@ def get_guard_keyboard(config, owner_id):
 
 def get_seen_keyboard(config, owner_id):
     auto_seen = config.get("auto_seen", True) if config else True
-    status_seen = f"سین خودکار ({'✔' if auto_seen else '❌'})"
+    seen_style = "success" if auto_seen else "danger"
     
     keyboard = [
         # پترن ۳ بخشی اختصاصی بدون کلمات مشترک با بخش‌های دیگر پنل تو
-        [InlineKeyboardButton(status_seen, callback_data=f"toggle_seen_{owner_id}")],
+        [InlineKeyboardButton("سین خودکار ", callback_data=f"toggle_seen_{owner_id}", style=seen_style)],
         # دکمه بازگشت هماهنگ با پنل تنظیمات اصلی تو
-        [InlineKeyboardButton("» بازگشت", callback_data=f"panel_sett_{owner_id}")]
+        [InlineKeyboardButton("» بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
 def get_force_join_keyboard(config, channels_count, owner_id):
     is_enabled = config.get("enabled", False) if config else False
-    status_text = f"عضویت اجباری ({'✔' if is_enabled else '❌'}) [{channels_count}/15]"
+    text_style = "success" if is_enabled else "danger"
     
     keyboard = [
-        [InlineKeyboardButton(status_text, callback_data=f"fj_toggle_{owner_id}")],
-        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]
+        [InlineKeyboardButton("عضویت اجباری", callback_data=f"fj_toggle_{owner_id}", style=text_style)],
+        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
 def build_textmode_keyboard(owner_id: int, current_mode: str) -> InlineKeyboardMarkup:
-    """ساخت دکمه‌ها و نمایش تیک فعال (✔️) یا غیرفعال (❌) دقیقاً مثل عکس منو"""
     modes = {
         "bold": "بولد", "italic": "ایتالیک", "strike": "خط‌خورده", "mono": "تک‌فاصله",
         "quote": "نقل قول", "underline": "زیرخط", "spoiler": "اسپویلر", "gradient": "تدریجی"
     }
     
     # تعیین وضعیت ضربدر یا تیک دکمه‌ها بر اساس مود فعلی دیتابیس
-    st = {k: "✔️" if current_mode == k else "❌" for k in modes.keys()}
+    st = {k: "success" if current_mode == k else "danger" for k in modes.keys()}
     
     keyboard = [
         [
-            InlineKeyboardButton(f"نقل قول ({st['quote']})", callback_data=f"tmode_quote_{owner_id}"),
-            InlineKeyboardButton(f"بولد ({st['bold']})", callback_data=f"tmode_bold_{owner_id}")
+            InlineKeyboardButton(f"نقل قول", callback_data=f"tmode_quote_{owner_id}", style=f"{st['quote']}"),
+            InlineKeyboardButton(f"بولد", callback_data=f"tmode_bold_{owner_id}", style=f"{st['bold']}")
         ],
         [
-            InlineKeyboardButton(f"زیرخط ({st['underline']})", callback_data=f"tmode_underline_{owner_id}"),
-            InlineKeyboardButton(f"ایتالیک ({st['italic']})", callback_data=f"tmode_italic_{owner_id}")
+            InlineKeyboardButton(f"زیرخط", callback_data=f"tmode_underline_{owner_id}", style=f"{st['underline']}"),
+            InlineKeyboardButton(f"ایتالیک", callback_data=f"tmode_italic_{owner_id}", style=f"{st['italic']}")
         ],
         [
-            InlineKeyboardButton(f"اسپویلر ({st['spoiler']})", callback_data=f"tmode_spoiler_{owner_id}"),
-            InlineKeyboardButton(f"خط‌خورده ({st['strike']})", callback_data=f"tmode_strike_{owner_id}")
+            InlineKeyboardButton(f"اسپویلر", callback_data=f"tmode_spoiler_{owner_id}", style=f"{st['spoiler']}"),
+            InlineKeyboardButton(f"خط‌خورده", callback_data=f"tmode_strike_{owner_id}", style=f"{st['strike']}")
         ],
         [
-            InlineKeyboardButton(f"تدریجی ({st['gradient']})", callback_data=f"tmode_gradient_{owner_id}"),
-            InlineKeyboardButton(f"تک‌فاصله ({st['mono']})", callback_data=f"tmode_mono_{owner_id}")
+            InlineKeyboardButton(f"تدریجی", callback_data=f"tmode_gradient_{owner_id}", style=f"{st['gradient']}"),
+            InlineKeyboardButton(f"تک‌فاصله", callback_data=f"tmode_mono_{owner_id}", style=f"{st['mono']}")
         ],
-        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]
+        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
