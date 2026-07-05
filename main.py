@@ -21,7 +21,7 @@ from telegram.ext import (
 from handlers.rps_game_handler import register_rps_handlers
 from config import BOT_TOKEN, PANEL_BOT_TOKEN , supabase
 from utils import db_execute 
-
+from handlers.client_manager import clients
 from handlers.client_manager import load_existing_sessions
 from handlers.auth_handler import (
     MAIN_MENU, START_PAYMENT, PHONE, CODE, PASSWORD, ENTER_INVITE_CODE,
@@ -34,7 +34,7 @@ from handlers.dice_game import (
     handle_transfer_request,
 )
 from handlers.panel_handler import handle_panel_clicks
-
+from cache_manager import cache
 # ⚙️ اینلاین هندلر اختصاصی برای پنل سلف‌بات
 async def inline_panel_handler(update, context):
     try:
@@ -164,6 +164,21 @@ async def _deduct_single_user(uid: int, current_diamonds: int, semaphore: asynci
         except Exception as e:
             print(f"❌ خطا در کسر طلا کاربر {uid}: {e}")
 
+async def balance_monitor():
+    while True:
+        # آپدیت کش از دیتابیس
+        await cache.refresh_cache() 
+        
+        # بررسی کلاینت‌های در حال اجرا در رم
+        for user_id, client in list(clients.items()):
+            if cache.get_balance(user_id) <= 0:
+                try:
+                    await client.disconnect()
+                    clients.pop(user_id, None)
+                    print(f"🚫 کاربر {user_id} به دلیل اتمام موجودی قطع شد.")
+                except:
+                    pass
+        await asyncio.sleep(60)
 
 async def deduct_diamonds_job(context):
     """کسر ۲ طلا از کاربرانی که سلف‌بات آن‌ها فعال است"""
@@ -234,9 +249,12 @@ async def start_dual_bots():
     await panel_app.start()
     await main_app.updater.start_polling()
     await panel_app.updater.start_polling()
-    
+    asyncio.create_task(balance_monitor())
+
     print("✅ سیستم هوما با موفقیت اجرا شد.")
     while True: await asyncio.sleep(86400)
+
+
 
 if __name__ == "__main__":
     try: asyncio.run(start_dual_bots())

@@ -1,4 +1,4 @@
-# cache_manager.py
+import asyncio
 from config import supabase
 from utils import db_execute
 
@@ -13,6 +13,7 @@ class BalanceCache:
 
     async def refresh_cache(self):
         try:
+            # دریافت موجودی تمام کاربران (بدون شرط is_active)
             query = supabase.table("users_diamonds").select("user_id, diamonds")
             res = await db_execute(query)
             if res and res.data:
@@ -20,9 +21,8 @@ class BalanceCache:
         except Exception as e:
             print(f"Error refreshing cache: {e}")
 
-    # این متد باید دقیقا همین نام باشد
     def get_balance(self, user_id):
+        # برگرداندن موجودی (پیش‌فرض 0 اگر کاربر نبود)
         return self._cache.get(int(user_id), 0)
 
-# ایجاد یک نمونه (Instance) از کلاس
 cache = BalanceCache()
