@@ -48,11 +48,11 @@ async def inline_panel_handler(update, context):
             
             keyboard = [
                 [
-                    InlineKeyboardButton("👤 اکانت من", callback_data=f"panel_acc_{user_id}"),
-                    InlineKeyboardButton("مدیریت و راهنمایی", callback_data=f"panel_sett_{user_id}")
+                    InlineKeyboardButton("👤 اکانت من", callback_data=f"panel_acc_{user_id}", style="primary"),
+                    InlineKeyboardButton("مدیریت و راهنمایی", callback_data=f"panel_sett_{user_id}", style="success")
                 ],
                 [
-                    InlineKeyboardButton("❌ بستن پنل", callback_data=f"panel_close_{user_id}")
+                    InlineKeyboardButton("❌ بستن پنل", callback_data=f"panel_close_{user_id}", style="danger")
                 ]
             ]
             reply_markup = InlineKeyboardMarkup(keyboard)

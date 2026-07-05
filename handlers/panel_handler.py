@@ -258,10 +258,10 @@ async def handle_panel_clicks(update, context):
         main_text = "Panel Management\n\nبه منوی مدیریت هوما خوش آمدید. لطفاً یک بخش را انتخاب کنید:"
         keyboard = [
             [
-                InlineKeyboardButton("👤 اکانت من", callback_data=f"panel_acc_{owner_id}"),
-                InlineKeyboardButton("مدیریت و راهنمایی", callback_data=f"panel_sett_{owner_id}")
+                InlineKeyboardButton("👤 اکانت من", callback_data=f"panel_acc_{owner_id}", style="primary"),
+                InlineKeyboardButton("مدیریت و راهنمایی", callback_data=f"panel_sett_{owner_id}", style="success")
             ],
-            [InlineKeyboardButton("❌ بستن پنل", callback_data=f"panel_close_{owner_id}")]
+            [InlineKeyboardButton("❌ بستن پنل", callback_data=f"panel_close_{owner_id}", style="danger")]
         ]
         try:
             await query.edit_message_text(text=main_text, reply_markup=InlineKeyboardMarkup(keyboard))
