@@ -74,7 +74,7 @@ async def get_locks_keyboard(owner_id):
             InlineKeyboardButton(f"قفل فوروارد", callback_data=f"tog_forward_{owner_id}", style=f"{status_color('forward')}")
         ],
         [
-            InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style=f"{status_color('sett')}")
+            InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")
         ]
     ])
 
@@ -102,12 +102,12 @@ def register_panel_handler(client):
 def get_secretary_keyboard(enabled_status: bool, owner_id: int) -> InlineKeyboardMarkup:
     """ساخت منوی منشی بر اساس وضعیت زنده سوپابیس"""
     # تغییر ظاهر و وضعیت متن دکمه شیشه‌ای منشی
-    btn_text = "منشی (✅)" if enabled_status else "منشی (❌)"
+    btn_style = "success" if enabled_status else "danger"
     
     keyboard = [
         # ساختار کالبک دیتا: sec_toggle_ownerId -> بخش سوم آیدی کاربر است و کرش نمی‌کند
-        [InlineKeyboardButton(btn_text, callback_data=f"sec_toggle_{owner_id}")],
-        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]
+        [InlineKeyboardButton("منشی", callback_data=f"sec_toggle_{owner_id}", style=btn_style)],
+        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -117,18 +117,38 @@ def get_guard_keyboard(config, owner_id):
     save_deleted = config.get("save_deleted", True)
     save_edited = config.get("save_edited", True)
     save_ttl = config.get("save_ttl", True)
-    
-    # فرمت‌دهی دقیق دکمه‌ها طبق پترن درخواستی شما
-    status_deleted = f"ذخیره پیام حذف شده ({'✔' if save_deleted else '❌'})"
-    status_edited = f"ذخیره ویرایش شده ({'✔' if save_edited else '❌'})"
-    status_ttl = f"ذخیره عکس تایمی ({'✔' if save_ttl else '❌'})"
-    
+
     keyboard = [
-        [InlineKeyboardButton(status_deleted, callback_data=f"grd_toggle_del_{owner_id}")],
-        [InlineKeyboardButton(status_edited, callback_data=f"grd_toggle_edt_{owner_id}")],
-        [InlineKeyboardButton(status_ttl, callback_data=f"grd_toggle_ttl_{owner_id}")],
-        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]
+        [
+            InlineKeyboardButton(
+                "ذخیره پیام حذف شده ",
+                callback_data=f"grd_toggle_del_{owner_id}",
+                style="success" if save_deleted else "danger",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "ذخیره ویرایش شده",
+                callback_data=f"grd_toggle_edt_{owner_id}",
+                style="success" if save_edited else "danger",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "ذخیره عکس تایمی",
+                callback_data=f"grd_toggle_ttl_{owner_id}",
+                style="success" if save_ttl else "danger",
+            )
+        ],
+        [
+            InlineKeyboardButton(
+                "« بازگشت",
+                callback_data=f"panel_sett_{owner_id}",
+                style="primary",
+            )
+        ]
     ]
+
     return InlineKeyboardMarkup(keyboard)
 
 def get_seen_keyboard(config, owner_id):
