@@ -18,7 +18,8 @@ from handlers.client_manager import (
     clients,
     create_client,
     login_data,
-    register_handlers,
+    activate_client,
+    deactivate_client,
 )
 from handlers.keybords import (
     get_calc_keyboard,
@@ -46,13 +47,12 @@ async def monitor_client(user_id: int, client):
     except Exception as e:
         print(f" s_bot {user_id} disconnected: {e}")
     finally:
+        deactivate_client(user_id)  # 👈 پاک‌سازی user_status و clients در حافظه
         try:
             query = supabase.table("users_diamonds").update({"is_active": False}).eq("user_id", user_id)
             await db_execute(query)
         except:
             pass
-        if user_id in clients:
-            del clients[user_id]
         if user_id in running_tasks:
             del running_tasks[user_id]
 
@@ -382,7 +382,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             await db_execute(update_query)
             if user_id in clients:
                 await clients[user_id].disconnect()
-                del clients[user_id]
+            deactivate_client(user_id)  # 👈 پاک‌سازی متمرکز user_status و clients
             if user_id in running_tasks:
                 running_tasks[user_id].cancel()
                 del running_tasks[user_id]
@@ -404,14 +404,13 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             if user_id in clients:
                 try: await clients[user_id].disconnect()
                 except: pass
-                del clients[user_id]
+                deactivate_client(user_id)
 
             client = create_client(user_id)
             await client.connect()
 
             if await client.is_user_authorized():
-                clients[user_id] = client
-                register_handlers(client)
+                activate_client(client, user_id)  # 👈 گارد + هندلرها + وضعیت، همه یک‌جا
                 start_client_background(user_id, client)
 
                 try:
@@ -435,7 +434,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             await db_execute(update_query)
             if user_id in clients:
                 await clients[user_id].disconnect()
-                del clients[user_id]
+            deactivate_client(user_id)  # 👈 پاک‌سازی متمرکز
             if user_id in running_tasks:
                 running_tasks[user_id].cancel()
                 del running_tasks[user_id]
@@ -531,9 +530,6 @@ async def handle_activation_payment(update: Update, context: ContextTypes.DEFAUL
         )
         return MAIN_MENU
 
-    # 🛑 باگ اصلی اینجا بود: قبلاً "await" نداشت و این خط عملاً هیچ‌وقت اجرا نمی‌شد
-    # (طلا هیچ‌وقت واقعاً کسر نمی‌شد). الان هم await داره و هم نتیجه‌ش چک میشه
-    # چون اگه بین این‌همه عملیات همزمان، موجودی ناکافی شده باشه، نباید ادامه بدیم.
     deducted = await update_balance(user_id, -REQUIRED_GOLD)
     if not deducted:
         await query.edit_message_text("❌ خطا در کسر موجودی. ممکن است موجودی شما به‌تازگی تغییر کرده باشد؛ لطفاً دوباره تلاش کنید.")
@@ -547,8 +543,6 @@ async def handle_activation_payment(update: Update, context: ContextTypes.DEFAUL
             reward_paid = user_data_db.data[0].get("invite_reward_paid", False)
 
             if inviter_id and not reward_paid:
-                # 🛠 قبلاً اینجا هم race condition بود (خواندن موجودی معرف و نوشتن
-                # مجدد به‌صورت دستی). الان از تابع اتمیک update_balance استفاده می‌کنیم.
                 await update_balance(inviter_id, 35)
                 paid_query = supabase.table("users_diamonds").update({"invite_reward_paid": True}).eq("user_id", user_id)
                 await db_execute(paid_query)
@@ -680,8 +674,7 @@ async def handle_code_calculator_clicks(update: Update, context: ContextTypes.DE
             await client.sign_in(phone=login_info["phone"], code=current_code, phone_code_hash=login_info["phone_code_hash"])
             await query.message.reply_text("✅ ورود موفقیت‌آمیز بود! سلف‌بات شما فعال شد.", reply_markup=get_start_keyboard())
 
-            register_handlers(client)
-
+            activate_client(client, user_id)  # 👈 گارد + هندلرها + وضعیت، همه یک‌جا
             start_client_background(user_id, client)
 
             del login_data[user_id]
@@ -718,8 +711,8 @@ async def get_password(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         await client.sign_in(password=password)
         await update.message.reply_text("✅ ورود با رمز دو مرحله‌ای موفقیت‌آمیز بود! سلف‌بات شما فعال شد.", reply_markup=get_start_keyboard())
-        register_handlers(client)
 
+        activate_client(client, user_id)  # 👈 گارد + هندلرها + وضعیت، همه یک‌جا
         start_client_background(user_id, client)
 
         if user_id in login_data:

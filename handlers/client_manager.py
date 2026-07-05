@@ -71,6 +71,31 @@ def register_guard(client: TelegramClient, user_id: int):
         client.add_event_handler(guard, ev)
 
 
+def activate_client(client: TelegramClient, user_id: int):
+    """
+    نقطه‌ی واحد و مرکزی برای «فعال‌سازی کامل» یک کلاینت.
+
+    ⚠️ این تابع باید در تمام مسیرهایی که یک کلاینت را زنده می‌کنند صدا زده شود:
+    - لود اولیه‌ی برنامه (init_single_client)
+    - کلیک روی دکمه‌ی «روشن کردن سلف» در auth_handler.py
+    - اتمام موفق لاگین جدید (کد یا رمز دو مرحله‌ای) در auth_handler.py
+
+    قبلاً هرکدوم از این مسیرها جدا و به‌صورت ناقص register_handlers را صدا
+    می‌زدند و register_guard را فراموش می‌کردند؛ همین باعث می‌شد کاربرانی که
+    از طریق دکمه یا لاگین جدید فعال می‌شدند، هیچ‌وقت تحت کنترل موجودی نباشند.
+    """
+    clients[user_id] = client
+    user_status[user_id] = True
+    register_guard(client, user_id)   # همیشه قبل از register_handlers
+    register_handlers(client)
+
+
+def deactivate_client(user_id: int):
+    """پاک‌سازی وضعیت در حافظه هنگام خاموش/حذف شدن کلاینت"""
+    user_status.pop(user_id, None)
+    clients.pop(user_id, None)
+
+
 def register_handlers(client: TelegramClient):
     """
     ثبت هندلرها به صورت بهینه؛ ایمپورت‌ها فقط یک‌بار در حافظه لود می‌شوند
@@ -173,12 +198,7 @@ async def init_single_client(user_id: int, semaphore: asyncio.Semaphore = None):
             await client.connect()
 
             if await client.is_user_authorized():
-                clients[user_id] = client
-                user_status[user_id] = True  # این تابع فقط برای کاربران مجاز صدا زده می‌شه
-
-                # گارد باید قبل از هندلرهای اصلی ثبت بشه
-                register_guard(client, user_id)
-                register_handlers(client)
+                activate_client(client, user_id)  # 👈 مسیر واحد فعال‌سازی (گارد + هندلرها + وضعیت)
 
                 async def safe_run():
                     try:
@@ -186,8 +206,7 @@ async def init_single_client(user_id: int, semaphore: asyncio.Semaphore = None):
                     except Exception as loop_err:
                         print(f"⚠️ کلاینت کاربر {user_id} قطع شد: {loop_err}")
                     finally:
-                        user_status.pop(user_id, None)
-                        clients.pop(user_id, None)
+                        deactivate_client(user_id)
                         try:
                             query = supabase.table("users_diamonds").update({"is_active": False}).eq("user_id", user_id)
                             await db_execute(query)
