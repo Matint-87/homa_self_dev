@@ -189,7 +189,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
         else:
             keyboard.append([InlineKeyboardButton("🌟 پرداخت و تایید (۳۰ طلا)", callback_data="pay_activation", style="success")])
 
-        keyboard.append([InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main")])
+        keyboard.append([InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary")])
 
         status_str = ("🟢 روشن" if is_active_db else "🔴 خاموش") if session_exists else "❌ فعال‌سازی نشده"
         await query.edit_message_text(
@@ -203,7 +203,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
     # ---------------------------------------------------------
     elif data == "about_self":
         keyboard = [
-            [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main")]
+            [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -231,7 +231,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             f"با لینک خود دوستانتان را دعوت کنید. زمانی که دوست شما وارد ربات شده و اقدام به فعال‌سازی سلف‌بات خود (با پرداخت طلا) کند، سیستم به طور خودکار به شما **۳۵ طلا** هدیه می‌دهد!💰\n\n"
             f"🔗 لینک دعوت اختصاصی شما:\n`{invite_link}`\n\n🆔 کد دعوت شما: `{user_id}`"
         )
-        keyboard = [[InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main")]]
+        keyboard = [[InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary")]]
         await query.edit_message_text(referral_text, reply_markup=InlineKeyboardMarkup(keyboard))
         return MAIN_MENU
 
@@ -248,7 +248,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
                 await query.edit_message_text(f"⚠️ خطایی در ثبت خودکار رخ داد: {e}")
             return MAIN_MENU
 
-        keyboard = [[InlineKeyboardButton("🔙 انصراف و بازگشت", callback_data="cancel_to_menu")]]
+        keyboard = [[InlineKeyboardButton("🔙 انصراف و بازگشت", callback_data="cancel_to_menu", style="primary")]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await query.edit_message_text(
@@ -270,7 +270,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             [InlineKeyboardButton("7", callback_data="gold_7"), InlineKeyboardButton("8", callback_data="gold_8"), InlineKeyboardButton("9", callback_data="gold_9")],
             [InlineKeyboardButton("Clear ❌", callback_data="gold_clear", style="danger"), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete", style="primary")],
             [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay", style="success")],
-            [InlineKeyboardButton("🔙 بازگشت و بسته شدن پنل", callback_data="back_to_main")]
+            [InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_main", style="primary")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -302,8 +302,8 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
         formatted_amount = "{:,}".format(final_amount)
 
         keyboard = [
-            [InlineKeyboardButton("🔙 بازگشت به ماشین حساب", callback_data="charge_gold_menu")],
-            [InlineKeyboardButton("🔙 منوی اصلی ربات", callback_data="back_to_main")]
+            [InlineKeyboardButton("🔙 بازگشت به ماشین حساب", callback_data="charge_gold_menu", style="primary")],
+            [InlineKeyboardButton("🔙 منوی اصلی ربات", callback_data="back_to_main", style="success")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -358,7 +358,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             [InlineKeyboardButton("7", callback_data="gold_7"), InlineKeyboardButton("8", callback_data="gold_8"), InlineKeyboardButton("9", callback_data="gold_9")],
             [InlineKeyboardButton("Clear ❌", callback_data="gold_clear", style="danger"), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete", style="primary")],
             [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay", style="success")],
-            [InlineKeyboardButton("🔙 بازگشت و بسته شدن پنل", callback_data="back_to_main")]
+            [InlineKeyboardButton("🔙 بازگشت و بسته شدن پنل", callback_data="back_to_main", style="primary")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -506,7 +506,7 @@ async def handle_go_to_pay(update: Update, context: ContextTypes.DEFAULT_TYPE):
         f"آیدی ادمین: @HOMA_SELFBOT_SUPPORT\n\n"
         f"نکته: در صورت فرستادن عکس فیش فیک تمامی طلاهای شما صفر خواهد شد."
     )
-    keyboard = [[InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main")]]
+    keyboard = [[InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary")]]
     await query.edit_message_text(receipt_text, reply_markup=InlineKeyboardMarkup(keyboard))
 
 
@@ -523,7 +523,7 @@ async def handle_activation_payment(update: Update, context: ContextTypes.DEFAUL
     REQUIRED_GOLD = 30
 
     if user_balance < REQUIRED_GOLD:
-        keyboard = [[InlineKeyboardButton("🔙 بازگشت", callback_data="menu_activation")]]
+        keyboard = [[InlineKeyboardButton("🔙 بازگشت", callback_data="menu_activation", style="primary")]]
         await query.edit_message_text(
             f"❌ **موجودی طلای شما کافی نیست!**\n\n💰 موجودی فعلی: {user_balance} طلا\n"
             f"⚠️ برای فعال‌سازی به {REQUIRED_GOLD} طلا نیاز دارید.",
