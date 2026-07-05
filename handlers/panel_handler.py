@@ -52,33 +52,29 @@ async def get_locks_keyboard(owner_id):
             "username": False, "link": False, "reply": False, "photo": False,
             "gif": False, "sticker": False, "pv": False, "forward": False
         }
-    
-    # تابع کوچک برای نمایش اموجی وضعیت (✅ برای روشن / ❌ برای خاموش)
-    def status_emoji(key):
-        return "✅" if locks.get(key, False) else "❌"
 
     def status_color(key):
         return "success" if locks.get(key, False) else "danger"
 
     return InlineKeyboardMarkup([
         [
-            InlineKeyboardButton(f"قفل یوزرنیم ({status_emoji('username')})", callback_data=f"tog_username_{owner_id}", style=f"{status_color('username')}"),
-            InlineKeyboardButton(f"قفل لینک ({status_emoji('link')})", callback_data=f"tog_link_{owner_id}")
+            InlineKeyboardButton(f"قفل یوزرنیم", callback_data=f"tog_username_{owner_id}", style=f"{status_color('username')}"),
+            InlineKeyboardButton(f"قفل لینک", callback_data=f"tog_link_{owner_id}", style=f"{status_color('link')}")
         ],
         [
-            InlineKeyboardButton(f"قفل ریپلای ({status_emoji('reply')})", callback_data=f"tog_reply_{owner_id}"),
-            InlineKeyboardButton(f"قفل عکس ({status_emoji('photo')})", callback_data=f"tog_photo_{owner_id}")
+            InlineKeyboardButton(f"قفل ریپلای", callback_data=f"tog_reply_{owner_id}", style=f"{status_color('reply')}"),
+            InlineKeyboardButton(f"قفل عکس", callback_data=f"tog_photo_{owner_id}", style=f"{status_color('photo')}")
         ],
         [
-            InlineKeyboardButton(f"قفل گیف ({status_emoji('gif')})", callback_data=f"tog_gif_{owner_id}"),
-            InlineKeyboardButton(f"قفل استیکر ({status_emoji('sticker')})", callback_data=f"tog_sticker_{owner_id}")
+            InlineKeyboardButton(f"قفل گیف", callback_data=f"tog_gif_{owner_id}", style=f"{status_color('gif')}"),
+            InlineKeyboardButton(f"قفل استیکر", callback_data=f"tog_sticker_{owner_id}", style=f"{status_color('sticher')}")
         ],
         [
-            InlineKeyboardButton(f"قفل پیوی ({status_emoji('pv')})", callback_data=f"tog_pv_{owner_id}"),
-            InlineKeyboardButton(f"قفل فوروارد ({status_emoji('forward')})", callback_data=f"tog_forward_{owner_id}")
+            InlineKeyboardButton(f"قفل پیوی", callback_data=f"tog_pv_{owner_id}", style=f"{status_color('pv')}"),
+            InlineKeyboardButton(f"قفل فوروارد", callback_data=f"tog_forward_{owner_id}", style=f"{status_color('forward')}")
         ],
         [
-            InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")
+            InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style=f"{status_color('sett')}")
         ]
     ])
 
