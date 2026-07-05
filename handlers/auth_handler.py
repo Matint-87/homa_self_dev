@@ -180,14 +180,14 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
         if session_exists:
             status_buttons = []
             if is_active_db:
-                status_buttons.append(InlineKeyboardButton("⏸ خاموش کردن سلف", callback_data="self_stop"))
+                status_buttons.append(InlineKeyboardButton("⏸ خاموش کردن سلف", callback_data="self_stop", style="danger"))
             else:
-                status_buttons.append(InlineKeyboardButton("▶️ روشن کردن سلف", callback_data="self_start"))
+                status_buttons.append(InlineKeyboardButton("▶️ روشن کردن سلف", callback_data="self_start", style="success"))
 
-            status_buttons.append(InlineKeyboardButton("🗑 حذف کامل سلف", callback_data="self_delete"))
+            status_buttons.append(InlineKeyboardButton("🗑 حذف کامل سلف", callback_data="self_delete", style="danger"))
             keyboard.append(status_buttons)
         else:
-            keyboard.append([InlineKeyboardButton("🌟 پرداخت و تایید (۳۰ طلا)", callback_data="pay_activation")])
+            keyboard.append([InlineKeyboardButton("🌟 پرداخت و تایید (۳۰ طلا)", callback_data="pay_activation", style="success")])
 
         keyboard.append([InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main")])
 
@@ -268,8 +268,8 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             [InlineKeyboardButton("1", callback_data="gold_1"), InlineKeyboardButton("2", callback_data="gold_2"), InlineKeyboardButton("3", callback_data="gold_3")],
             [InlineKeyboardButton("4", callback_data="gold_4"), InlineKeyboardButton("5", callback_data="gold_5"), InlineKeyboardButton("6", callback_data="gold_6")],
             [InlineKeyboardButton("7", callback_data="gold_7"), InlineKeyboardButton("8", callback_data="gold_8"), InlineKeyboardButton("9", callback_data="gold_9")],
-            [InlineKeyboardButton("Clear ❌", callback_data="gold_clear"), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete")],
-            [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay")],
+            [InlineKeyboardButton("Clear ❌", callback_data="gold_clear", style="danger"), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete", style="primary")],
+            [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay", style="success")],
             [InlineKeyboardButton("🔙 بازگشت و بسته شدن پنل", callback_data="back_to_main")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -356,8 +356,8 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             [InlineKeyboardButton("1", callback_data="gold_1"), InlineKeyboardButton("2", callback_data="gold_2"), InlineKeyboardButton("3", callback_data="gold_3")],
             [InlineKeyboardButton("4", callback_data="gold_4"), InlineKeyboardButton("5", callback_data="gold_5"), InlineKeyboardButton("6", callback_data="gold_6")],
             [InlineKeyboardButton("7", callback_data="gold_7"), InlineKeyboardButton("8", callback_data="gold_8"), InlineKeyboardButton("9", callback_data="gold_9")],
-            [InlineKeyboardButton("Clear ❌", callback_data="gold_clear"), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete")],
-            [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay")],
+            [InlineKeyboardButton("Clear ❌", callback_data="gold_clear", style="danger"), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete", style="primary")],
+            [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay", style="success")],
             [InlineKeyboardButton("🔙 بازگشت و بسته شدن پنل", callback_data="back_to_main")]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
