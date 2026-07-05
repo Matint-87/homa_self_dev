@@ -240,13 +240,13 @@ def build_action_keyboard(owner_id: int, current_action: str) -> InlineKeyboardM
 def build_filter_keyboard(owner_id: int, config: dict) -> InlineKeyboardMarkup:
     """ساخت دکمه‌های منوی فیلتر کلمات بر اساس الگوی تصویر پنجم"""
     is_enabled = config.get("enabled", False)
-    status_emoji = "✔️" if is_enabled else "❌"
+    emoji_style = "success" if is_enabled else "danger"
     
     keyboard = [
         # دکمه وضعیت اصلی سیستم فیلتر کلمات
-        [InlineKeyboardButton(f"فیلتر کلمات ({status_emoji})", callback_data=f"toggle_filter_status_{owner_id}")],
+        [InlineKeyboardButton(f"فیلتر کلمات", callback_data=f"toggle_filter_status_{owner_id}", style=emoji_style)],
         # دکمه بازگشت به منوی تنظیمات اصلی
-        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]
+        [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]
     ]
     return InlineKeyboardMarkup(keyboard)
 
@@ -310,14 +310,16 @@ async def handle_panel_clicks(update, context):
         except Exception as db_error:
             print(f"⚠️ Error fetching diamonds from Supabase: {db_error}")
 
+        toman_balance = user_gold_balance * 35
         caption_text = (
             f"<b>اطلاعات حساب کاربری</b>\n\n"
             f"<b>نام:</b> {user_name}\n"
             f"<b>یوزرنیم:</b> {username}\n"
             f"<b>آیدی عددی:</b> <code>{owner_id}</code>\n"
-            f"<b>موجود طلا:</b> {user_gold_balance:,}"
+            f"<b>موجود طلا:</b> {user_gold_balance:,}\n"
+            f"<b>معادل تومان:</b> {toman_balance:,} تومان"
         )
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_main_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_main_{owner_id}", style="primary")]]
         try:
             await query.edit_message_text(
                 text=caption_text,
