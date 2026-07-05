@@ -18,29 +18,29 @@ def get_calculator_keyboard(owner_id):
             InlineKeyboardButton("7", callback_data=f"clc_7_{owner_id}"),
             InlineKeyboardButton("8", callback_data=f"clc_8_{owner_id}"),
             InlineKeyboardButton("9", callback_data=f"clc_9_{owner_id}"),
-            InlineKeyboardButton("÷", callback_data=f"clc_div_{owner_id}")
+            InlineKeyboardButton("÷", callback_data=f"clc_div_{owner_id}", style="primary")
         ],
         [
             InlineKeyboardButton("4", callback_data=f"clc_4_{owner_id}"),
             InlineKeyboardButton("5", callback_data=f"clc_5_{owner_id}"),
             InlineKeyboardButton("6", callback_data=f"clc_6_{owner_id}"),
-            InlineKeyboardButton("×", callback_data=f"clc_mul_{owner_id}")
+            InlineKeyboardButton("×", callback_data=f"clc_mul_{owner_id}", style="primary")
         ],
         [
             InlineKeyboardButton("1", callback_data=f"clc_1_{owner_id}"),
             InlineKeyboardButton("2", callback_data=f"clc_2_{owner_id}"),
             InlineKeyboardButton("3", callback_data=f"clc_3_{owner_id}"),
-            InlineKeyboardButton("-", callback_data=f"clc_sub_{owner_id}")
+            InlineKeyboardButton("-", callback_data=f"clc_sub_{owner_id}", style="danger")
         ],
         [
             InlineKeyboardButton("0", callback_data=f"clc_0_{owner_id}"),
-            InlineKeyboardButton(".", callback_data=f"clc_dot_{owner_id}"),
-            InlineKeyboardButton("=", callback_data=f"clc_equal_{owner_id}", style="primary"),
-            InlineKeyboardButton("+", callback_data=f"clc_add_{owner_id}")
+            InlineKeyboardButton(".", callback_data=f"clc_dot_{owner_id}", style="success"),
+            InlineKeyboardButton("=", callback_data=f"clc_equal_{owner_id}", style="success"),
+            InlineKeyboardButton("+", callback_data=f"clc_add_{owner_id}", style="danger")
         ],
         [
             InlineKeyboardButton("C", callback_data=f"clc_clear_{owner_id}", style="danger"),
-            InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")
+            InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")
         ]
     ])
 
@@ -413,7 +413,7 @@ async def handle_panel_clicks(update, context):
             ">  `\*پینگ`"  
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -445,7 +445,7 @@ async def handle_panel_clicks(update, context):
 
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -806,7 +806,7 @@ async def handle_panel_clicks(update, context):
             ">  `\*لوگو مهدی`"  
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -896,7 +896,7 @@ async def handle_panel_clicks(update, context):
         )
         
 
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -924,7 +924,7 @@ async def handle_panel_clicks(update, context):
             ">  `*پایان اسپم`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -952,7 +952,7 @@ async def handle_panel_clicks(update, context):
             ">  `*پاکسازی سکوت`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -977,10 +977,10 @@ async def handle_panel_clicks(update, context):
         # ساخت همان دو دکمه سبز رنگ تصویر شما
         keyboard = [
             [
-                InlineKeyboardButton("دانلود از چنل پرایوت", callback_data=f"down_private_{owner_id}"),
-                InlineKeyboardButton("دانلود از اینستا", callback_data=f"down_insta_{owner_id}")
+                InlineKeyboardButton("دانلود از چنل پرایوت", callback_data=f"down_private_{owner_id}", style="success"),
+                InlineKeyboardButton("دانلود از اینستا", callback_data=f"down_insta_{owner_id}", style="danger")
             ],
-            [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]
+            [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]
         ]
         
         try:
@@ -1007,7 +1007,7 @@ async def handle_panel_clicks(update, context):
         )
         
         # بازگشت به منوی قبلی یعنی همان sett_down_
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"sett_down_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"sett_down_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1033,7 +1033,7 @@ async def handle_panel_clicks(update, context):
         )
         
         # بازگشت به منوی قبلی یعنی همان sett_down_
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"sett_down_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"sett_down_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1057,10 +1057,10 @@ async def handle_panel_clicks(update, context):
         # ساخت دکمه‌های مطابق با تصویر دوم (image_a8e48a.png)
         keyboard = [
             [
-                InlineKeyboardButton("دشمن ☠️", callback_data=f"fr_enemy_{owner_id}"),
-                InlineKeyboardButton("دوست 🤝", callback_data=f"fr_friend_{owner_id}")
+                InlineKeyboardButton("دشمن ☠️", callback_data=f"fr_enemy_{owner_id}", style="danger"),
+                InlineKeyboardButton("دوست 🤝", callback_data=f"fr_friend_{owner_id}", style="success")
             ],
-            [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]
+            [InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]
         ]
         
         try:
@@ -1093,7 +1093,7 @@ async def handle_panel_clicks(update, context):
         )
         
         # بازگشت به منوی قبلی یعنی همان sett_fr_en_
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"sett_fr_en_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"sett_fr_en_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1125,7 +1125,7 @@ async def handle_panel_clicks(update, context):
         )
         
         # بازگشت به منوی قبلی یعنی همان sett_fr_en_
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"sett_fr_en_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"sett_fr_en_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1145,7 +1145,7 @@ async def handle_panel_clicks(update, context):
             ">  `*آیدی`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1169,7 +1169,7 @@ async def handle_panel_clicks(update, context):
             ">  `*تگ اعضا`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1193,7 +1193,7 @@ async def handle_panel_clicks(update, context):
             ">  `*آن بلاک`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1219,7 +1219,7 @@ async def handle_panel_clicks(update, context):
             ">  این دستور تعداد مشخصی از پیام های اخیر را حذف می کند حد اکثار 500 پیام\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1320,7 +1320,7 @@ async def handle_panel_clicks(update, context):
             ">  `*ai متن سوال`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1345,7 +1345,7 @@ async def handle_panel_clicks(update, context):
 
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1373,7 +1373,7 @@ async def handle_panel_clicks(update, context):
 
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1398,7 +1398,7 @@ async def handle_panel_clicks(update, context):
             ">  `*متن کامنت مثلا سلام`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1432,7 +1432,7 @@ async def handle_panel_clicks(update, context):
             ">  `*پاکسازی پاسخ`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1464,7 +1464,7 @@ async def handle_panel_clicks(update, context):
             ">  `*عضویت اجباری خاموش`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1523,7 +1523,7 @@ async def handle_panel_clicks(update, context):
             "\n"
             ">  `*قیمت ریپل`\n"
         )
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1563,7 +1563,7 @@ async def handle_panel_clicks(update, context):
             ">  `*گربه`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1590,7 +1590,7 @@ async def handle_panel_clicks(update, context):
 
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1612,7 +1612,7 @@ async def handle_panel_clicks(update, context):
             ">  `*اسکرین`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1636,7 +1636,7 @@ async def handle_panel_clicks(update, context):
             ">  `*بسکتبال`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
@@ -1658,7 +1658,7 @@ async def handle_panel_clicks(update, context):
             ">  `*پروکسی`\n"
         )
         
-        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}")]]
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
         
         try:
             await query.edit_message_text(
