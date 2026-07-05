@@ -154,37 +154,49 @@ async def init_single_client(user_id: int, semaphore: asyncio.Semaphore):
 
 async def load_existing_sessions():
     print("🔍 در حال بررسی و لود سشن‌های موجود...")
+    
     if not os.path.exists("new_sessions"):
+        print("⚠️ پوشه سشن‌ها یافت نشد.")
         return
 
+    # ۱. دریافت تمام کاربران دارای طلا از دیتابیس (بدون شرط is_active)
     valid_users = set()
     try:
-        # تغییر به ساختار جدید (ایجاد کوئری و سپس await db_execute)
-        query = supabase.table("users_diamonds").select("user_id").gt("diamonds", 0).eq("is_active", True)
+        # فقط کسانی که طلا دارند مجاز به لاگین هستند
+        query = supabase.table("users_diamonds").select("user_id").gt("diamonds", 0)
         response = await db_execute(query)
             
         if response.data:
             valid_users = {int(row["user_id"]) for row in response.data}
-        print(f"💰 تعداد {len(valid_users)} کاربر مجاز دریافت شد.")
+        print(f"💰 تعداد {len(valid_users)} کاربر دارای اعتبار در دیتابیس شناسایی شد.")
     except Exception as db_error:
-        print(f"⚠️ خطای دیتابیس در خواندن اطلاعات: {db_error}")
+        print(f"⚠️ خطای دیتابیس: {db_error}")
         return
 
     session_tasks = []
     connection_semaphore = asyncio.Semaphore(50) 
+    
+    # ۲. اسکن پوشه سشن‌ها
+    all_sessions = [f for f in os.listdir("new_sessions") if f.endswith(".session")]
+    
+    for filename in all_sessions:
+        user_id_str = filename.replace(".session", "")
+        if user_id_str.isdigit():
+            user_id = int(user_id_str)
+            
+            # اگر در دیتابیس اعتبار ندارد، لودش نکن
+            if user_id not in valid_users:
+                print(f"🚫 کاربر {user_id} اعتبار ندارد و لود نشد.")
+                continue
 
-    for filename in os.listdir("new_sessions"):
-        if filename.endswith(".session"):
-            user_id_str = filename.replace(".session", "")
-            if user_id_str.isdigit():
-                user_id = int(user_id_str)
-                if user_id not in valid_users:
-                    continue
+            # ۳. لود کردن کلاینت
+            task = init_single_client(user_id, connection_semaphore)
+            session_tasks.append(task)
 
-                task = init_single_client(user_id, connection_semaphore)
-                session_tasks.append(task)
-
+    # ۴. اجرای لود موازی
     if session_tasks:
-        print(f"⚡ در حال لود موازی {len(session_tasks)} کلاینت...")
+        print(f"⚡ در حال لود موازی {len(session_tasks)} کلاینت معتبر...")
         await asyncio.gather(*session_tasks)
-        print("✅ فرآیند بارگذاری به پایان رسید.")        
+        print("✅ فرآیند بارگذاری به پایان رسید.")
+    else:
+        print("ℹ️ هیچ سشن معتبری برای لود کردن یافت نشد.")
