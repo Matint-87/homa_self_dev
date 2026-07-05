@@ -102,27 +102,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session_exists = os.path.exists(f"new_sessions/{user_id}.session")
 
     keyboard = [
-        [InlineKeyboardButton("⚙️ مدیریت و فعال‌سازی سلف‌بات", callback_data="menu_activation")]
+        [InlineKeyboardButton("⚙️ مدیریت و فعال‌سازی سلف‌بات", callback_data="menu_activation", style="success")]
     ]
 
     try:
         query = supabase.table("users_diamonds").select("referred_by").eq("user_id", user_id)
         user_row = await db_execute(query)
         if not user_row.data or user_row.data[0].get("referred_by") is None:
-            keyboard.append([InlineKeyboardButton("🎁 وارد کردن کد دعوت دوستان", callback_data="enter_invite_menu")])
+            keyboard.append([InlineKeyboardButton("🎁 وارد کردن کد دعوت دوستان", callback_data="enter_invite_menu", style="danger")])
     except:
         pass
 
     keyboard.extend([
         [
-            InlineKeyboardButton("👥 گروه", url=GROUP_URL),
-            InlineKeyboardButton("📢 چنل", url=CHANNEL_URL),
+            InlineKeyboardButton("👥 گروه", url=GROUP_URL, style="primary"),
+            InlineKeyboardButton("📢 چنل", url=CHANNEL_URL, style="primary"),
         ],
-        [InlineKeyboardButton("💰 شارژ موجودی (طلا)", callback_data="charge_gold_menu")],
-        [InlineKeyboardButton("☎️ پشتیبانی", url=SUPPORT_URL)],
-        [InlineKeyboardButton("🤝 دعوت از دوستان (۳۵ طلا هدیه)", callback_data="menu_referral")],
-        [InlineKeyboardButton("ℹ️ درباره سلف", callback_data="about_self")],
-        [InlineKeyboardButton("🔒 بستن پنل مدیریت", callback_data="close_panel")]
+        [InlineKeyboardButton("💰 شارژ موجودی (طلا)", callback_data="charge_gold_menu", style="danger")],
+        [InlineKeyboardButton("☎️ پشتیبانی", url=SUPPORT_URL, style="danger")],
+        [InlineKeyboardButton("🤝 دعوت از دوستان (۳۵ طلا هدیه)", callback_data="menu_referral", style="success")],
+        [InlineKeyboardButton("ℹ️ درباره سلف", callback_data="about_self", style="primary")],
+        [InlineKeyboardButton("🔒 بستن پنل مدیریت", callback_data="close_panel", style="danger")]
     ])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
