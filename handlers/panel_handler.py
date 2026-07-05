@@ -18,25 +18,25 @@ def get_calculator_keyboard(owner_id):
             InlineKeyboardButton("7", callback_data=f"clc_7_{owner_id}"),
             InlineKeyboardButton("8", callback_data=f"clc_8_{owner_id}"),
             InlineKeyboardButton("9", callback_data=f"clc_9_{owner_id}"),
-            InlineKeyboardButton("÷", callback_data=f"clc_div_{owner_id}", style="primary")
+            InlineKeyboardButton("÷", callback_data=f"clc_div_{owner_id}")
         ],
         [
             InlineKeyboardButton("4", callback_data=f"clc_4_{owner_id}"),
             InlineKeyboardButton("5", callback_data=f"clc_5_{owner_id}"),
             InlineKeyboardButton("6", callback_data=f"clc_6_{owner_id}"),
-            InlineKeyboardButton("×", callback_data=f"clc_mul_{owner_id}", style="primary")
+            InlineKeyboardButton("×", callback_data=f"clc_mul_{owner_id}")
         ],
         [
             InlineKeyboardButton("1", callback_data=f"clc_1_{owner_id}"),
             InlineKeyboardButton("2", callback_data=f"clc_2_{owner_id}"),
             InlineKeyboardButton("3", callback_data=f"clc_3_{owner_id}"),
-            InlineKeyboardButton("-", callback_data=f"clc_sub_{owner_id}", style="danger")
+            InlineKeyboardButton("-", callback_data=f"clc_sub_{owner_id}")
         ],
         [
             InlineKeyboardButton("0", callback_data=f"clc_0_{owner_id}"),
-            InlineKeyboardButton(".", callback_data=f"clc_dot_{owner_id}", style="success"),
-            InlineKeyboardButton("=", callback_data=f"clc_equal_{owner_id}", style="success"),
-            InlineKeyboardButton("+", callback_data=f"clc_add_{owner_id}", style="danger")
+            InlineKeyboardButton(".", callback_data=f"clc_dot_{owner_id}"),
+            InlineKeyboardButton("=", callback_data=f"clc_equal_{owner_id}"),
+            InlineKeyboardButton("+", callback_data=f"clc_add_{owner_id}")
         ],
         [
             InlineKeyboardButton("C", callback_data=f"clc_clear_{owner_id}", style="danger"),
