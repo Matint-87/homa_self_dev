@@ -19,8 +19,8 @@ async def start_dice_request(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     bet_amount = int(match.group(1))
     
-    if bet_amount < 3:
-        await message.reply_text("⚠️ حداقل شرط برای بازی ۳ طلا است!")
+    if bet_amount < 30:
+        await message.reply_text("⚠️ حداقل شرط برای بازی ۳۰ طلا است!")
         return
 
     creator_diamonds = await get_user_diamonds(user.id)
@@ -40,15 +40,16 @@ async def start_dice_request(update: Update, context: ContextTypes.DEFAULT_TYPE)
     }
 
     keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("✅ قبول", callback_data=f"dice_join_{game_id}"),
-        InlineKeyboardButton("❌ لغو", callback_data=f"dice_cancel_{game_id}")
+        InlineKeyboardButton("قبول", callback_data=f"dice_join_{game_id}", style="success"),
+        InlineKeyboardButton("لغو", callback_data=f"dice_cancel_{game_id}", style="danger")
     ]])
     
     await message.reply_text(
         f"بازی {bet_amount}\n\n"
-        f"🎲 <b>درخواست بازی</b>\n"
+        f"<b>درخواست بازی</b>\n"
         f"👤 سازنده: {get_mention(user)}\n"
-        f"💰 شرط: {bet_amount} طلا",
+        f"💰 شرط: {bet_amount} طلا"
+        "💬 یک نفر برای شروع بازی باید دکمه <b>« قبول »</b> را بزند!",
         reply_markup=keyboard, parse_mode="HTML"
     )
 
@@ -102,10 +103,10 @@ async def handle_dice_clicks(update: Update, context: ContextTypes.DEFAULT_TYPE)
 
         result_text = (
             f"بازی {bet}\n\n"
-            "🎉 <b>نتیجه بازی مشخص شد</b>\n\n"
-            f"🎊 <b>کاربر برنده:</b> {winner_name}\n"
+            "<b>بازی به پایان رسید!</b>\n\n"
+            f"👑 <b>کاربر برنده:</b> {winner_name}\n"
             f"💰 <b>موجودی جدید:</b> {new_winner_balance} طلا\n\n"
-            f"❌ <b>کاربر بازنده:</b> {loser_name}\n"
+            f"🥶 <b>کاربر بازنده:</b> {loser_name}\n"
             f"💰 <b>موجودی جدید:</b> {new_loser_balance} طلا"
         )
         
@@ -115,4 +116,3 @@ async def handle_dice_clicks(update: Update, context: ContextTypes.DEFAULT_TYPE)
 def register_dice_handlers(app):
     app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r'^بازی\s+(\d+)$'), start_dice_request))
     app.add_handler(CallbackQueryHandler(handle_dice_clicks, pattern=r'^dice_.*'))
-    
