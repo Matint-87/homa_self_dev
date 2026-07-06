@@ -101,8 +101,7 @@ async def handle_dice_clicks(update: Update, context: ContextTypes.DEFAULT_TYPE)
         new_loser_balance = await get_user_diamonds(loser)
 
         result_text = (
-            f"بازی {bet}\n\n"
-            "<b>بازی به پایان رسید!</b>\n\n"
+            f"<b>بازی {bet} به پایان رسید!</b>\n\n"
             f"👑 <b>کاربر برنده:</b> {winner_name}\n"
             f"💰 <b>موجودی جدید:</b> {new_winner_balance} طلا\n\n"
             f"🥶 <b>کاربر بازنده:</b> {loser_name}\n"
