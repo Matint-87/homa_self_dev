@@ -21,7 +21,7 @@ from telegram.ext import (
 from handlers.rps_game_handler import register_rps_handlers
 from config import BOT_TOKEN, PANEL_BOT_TOKEN , supabase
 from utils import db_execute 
-
+from handlers.random_game import register_dice_handlers
 from handlers.client_manager import load_existing_sessions, status_watcher
 from handlers.auth_handler import (
     MAIN_MENU, START_PAYMENT, PHONE, CODE, PASSWORD, ENTER_INVITE_CODE,
@@ -210,7 +210,7 @@ async def start_dual_bots():
     main_app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^طلا"), handle_balance_request))
     main_app.add_handler(MessageHandler(filters.TEXT & filters.Regex(r"^واریز طلا \d+$"), handle_transfer_request))
     register_rps_handlers(main_app)
-    
+    register_dice_handlers(main_app)
     # فعال‌سازی جاب (هر یک ساعت)
     main_app.job_queue.run_repeating(deduct_diamonds_job, interval=3600, first=60)
 
