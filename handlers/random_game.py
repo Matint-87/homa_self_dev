@@ -45,10 +45,9 @@ async def start_dice_request(update: Update, context: ContextTypes.DEFAULT_TYPE)
     ]])
     
     await message.reply_text(
-        f"بازی {bet_amount}\n\n"
-        f"<b>درخواست بازی</b>\n"
+        f"<b>درخواست بازی {bet_amount}</b>\n"
         f"👤 سازنده: {get_mention(user)}\n"
-        f"💰 شرط: {bet_amount} طلا"
+        f"💰 شرط: {bet_amount} طلا\n\n"
         "💬 یک نفر برای شروع بازی باید دکمه <b>« قبول »</b> را بزند!",
         reply_markup=keyboard, parse_mode="HTML"
     )
