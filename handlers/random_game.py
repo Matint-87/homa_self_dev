@@ -79,8 +79,8 @@ async def start_dice_request(update: Update, context: ContextTypes.DEFAULT_TYPE)
     }
 
     keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("قبول", callback_data=f"dice_join_{game_id}"),
-        InlineKeyboardButton("لغو", callback_data=f"dice_cancel_{game_id}")
+        InlineKeyboardButton("قبول", callback_data=f"dice_join_{game_id}", style="success"),
+        InlineKeyboardButton("لغو", callback_data=f"dice_cancel_{game_id}", style="danger")
     ]])
 
     sent_message = await message.reply_text(

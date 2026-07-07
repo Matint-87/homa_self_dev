@@ -1,31 +1,3 @@
-"""
-============================================================
- Screen Handler — تبدیل پیام به استیکر (مثل @QuotLyBot)
-============================================================
-
-روی پیام کسی ریپلای کن و بنویس:
-    *اسکرین
-
-پیامش به‌صورت یه کارت/استیکر شیک (شبیه quote) ساخته و به همون
-چت فرستاده می‌شه.
-
-نصب پیش‌نیازها:
-    pip install telethon pillow arabic_reshaper python-bidi
-
-⚠️ فونت فارسی لازم داری — فونت‌های پیش‌فرض سیستم معمولاً فارسی رو
-درست رندر نمی‌کنن (حروف از هم جدا می‌افتن). یه فونت .ttf فارسی
-دانلود کن، کنار اسکریپتت بگذار، و مسیرش رو توی CONFIG["font_path"]
-وارد کن. پیشنهاد رایگان: Vazirmatn
-    https://github.com/rastikerdar/vazirmatn/releases
-
-نحوه‌ی استفاده در فایل اصلی:
-    from telethon import TelegramClient
-    from screen_handler import register_screen_handler
-
-    client = TelegramClient(...)
-    register_screen_handler(client)
-"""
-
 import os
 import asyncio
 import tempfile
@@ -37,13 +9,16 @@ from PIL import Image, ImageDraw, ImageFont, ImageOps
 from telethon import events
 from telethon.tl.types import DocumentAttributeSticker, InputStickerSetEmpty
 
+# 📌 پوشه‌ای که همین فایل پایتون داخلشه (مستقل از cwd پروسه در زمان اجرا)
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 CONFIG = {
     "prefix": "*",
     "command": "اسکرین",
 
-    # مسیر فونت فارسی — حتماً قبل از استفاده درستش کن
-    "font_path": "Vazirmatn-SemiBold.ttf",
+    # ⚠️ مسیر مطلق فونت — دیگه به working directory سرویس/systemd/pm2 وابسته نیست.
+    # اگه فونت رو کنار همین فایل پایتون گذاشتی همین کافیه؛ اگه جای دیگه‌ست، مسیر رو عوض کن.
+    "font_path": os.path.join(_BASE_DIR, "Vazirmatn-SemiBold.ttf"),
     "font_size": 34,
     "name_font_size": 30,
 
