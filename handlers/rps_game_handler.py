@@ -28,13 +28,24 @@ async def get_user_diamonds(user_id: int) -> int:
 
 
 async def update_diamonds(user_id: int, amount: int):
+    """
+    ✅ نسخه اتمیک: به‌جای «بخون، جمع کن، بنویس» (که race condition داشت)،
+    از تابع دیتابیسی increment_diamonds استفاده می‌کند که خودِ Postgres
+    به‌صورت اتمیک مقدار را جمع/کم می‌کند. اگر دو عملیات همزمان روی یک
+    کاربر اجرا شوند، دیگر همدیگر را overwrite نمی‌کنند.
+
+    نکته: اگر تابع increment_diamonds را دقیقاً روی جدول users_diamonds
+    نساخته‌ای، SQL موردنیاز را در پاسخ متنی (پایین صفحه) پیدا می‌کنی.
+    """
     try:
-        current = await get_user_diamonds(user_id)
-        new_balance = max(0, current + amount)
-        query = supabase.table("users_diamonds").upsert({"user_id": user_id, "diamonds": new_balance})
+        query = supabase.rpc(
+            "increment_diamonds",
+            {"p_user_id": user_id, "p_amount": amount}
+        )
         await db_execute(query)
     except Exception as e:
         print(f"Error updating diamonds for {user_id}: {e}")
+
 
 
 async def add_win_to_ranking(user_id: int, display_name: str):
@@ -88,6 +99,10 @@ async def start_rps_request(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if creator_diamonds < bet_amount:
         await message.reply_text(f"❌ موجودی طلا شما کافی نیست!\nطلا شما: {creator_diamonds} | 💰 شرط: {bet_amount}")
         return
+
+    # 🔒 ESCROW: به محض ساخت بازی، مبلغ شرط از حساب سازنده کسر و بلوکه می‌شود
+    # این کار مانع می‌شود که سازنده با همان موجودی، چند بازی همزمان بسازد و چند برابر سود کند
+    await update_diamonds(creator_id, -bet_amount)
 
     game_id = f"{chat.id}_{message.message_id}"
 
@@ -148,8 +163,16 @@ async def handle_rps_clicks(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await safe_answer("⚠️ فقط سازنده بازی می‌تواند آن را لغو کند!", show_alert=True)
             return
 
+        # ⛔ اگر بازی از حالت انتظار خارج شده (حریف قبول کرده) دیگر قابل لغو نیست
+        if game["status"] != "waiting":
+            await safe_answer("⚠️ بازی شروع شده و دیگر قابل لغو نیست!", show_alert=True)
+            return
+
+        # 💰 بازگرداندن طلای بلوکه‌شده سازنده
+        await update_diamonds(game["creator_id"], +game["bet_amount"])
+
         del ACTIVE_RPS_GAMES[game_id]
-        await query.edit_message_text("❌ <b>این بازی توسط سازنده لغو شد.</b>", parse_mode="HTML")
+        await query.edit_message_text("❌ <b>این بازی توسط سازنده لغو شد و طلای شرط بازگردانده شد.</b>", parse_mode="HTML")
         return
 
     elif data.startswith("rps_join_"):
@@ -175,6 +198,9 @@ async def handle_rps_clicks(update: Update, context: ContextTypes.DEFAULT_TYPE):
         if opp_diamonds < game["bet_amount"]:
             await safe_answer(f"❌ طلا شما کافی نیست! موجودی: {opp_diamonds}", show_alert=True)
             return
+
+        # 🔒 ESCROW: به محض قبول کردن، مبلغ شرط از حساب حریف هم کسر و بلوکه می‌شود
+        await update_diamonds(clicker_id, -game["bet_amount"])
 
         game["opponent_id"] = clicker_id
         game["opponent_name"] = clicker_display
@@ -268,12 +294,16 @@ async def process_game_result(query, game_id, game):
     c_name = game["creator_name"]
     o_name = game["opponent_name"]
 
+    # 🤝 حالت تساوی: طلای هر دو نفر که بلوکه شده بود، به خودشان بازمی‌گردد
     if c_choice == o_choice:
+        await update_diamonds(game["creator_id"], +bet)
+        await update_diamonds(game["opponent_id"], +bet)
+
         result_text = (
             "🤝 <b>بازی به تساوی کشید!</b>\n\n"
             f"👤 {c_name} ➔ {CHOICE_EMOJIS[c_choice]}\n"
             f"👤 {o_name} ➔ {CHOICE_EMOJIS[o_choice]}\n\n"
-            "هیچ طلایی از حساب کسی کسر یا اضافه نشد."
+            "💰 طلای شرط هر دو طرف بازگردانده شد."
         )
         try:
             await query.edit_message_text(result_text, reply_markup=None, parse_mode="HTML")
@@ -290,9 +320,11 @@ async def process_game_result(query, game_id, game):
     else:
         winner = "opponent"
 
+    # 💰 چون مبلغ شرط هر دو نفر از قبل (هنگام ساخت/قبول بازی) کسر و بلوکه شده بود،
+    # اینجا فقط کافیست به برنده، هم طلای خودش و هم طلای بازنده (یعنی 2×bet) داده شود.
+    # به بازنده چیزی برگردانده نمی‌شود چون طلایش از قبل کسر شده است.
     if winner == "creator":
-        await update_diamonds(game["creator_id"], +bet)
-        await update_diamonds(game["opponent_id"], -bet)
+        await update_diamonds(game["creator_id"], +(bet * 2))
         await add_win_to_ranking(game["creator_id"], game["creator_name"])
 
         final_text = (
@@ -302,8 +334,7 @@ async def process_game_result(query, game_id, game):
             f"💰 مقدار <code>{bet}</code> طلا به حساب برنده واریز شد!\n"
         )
     else:
-        await update_diamonds(game["opponent_id"], +bet)
-        await update_diamonds(game["creator_id"], -bet)
+        await update_diamonds(game["opponent_id"], +(bet * 2))
         await add_win_to_ranking(game["opponent_id"], game["opponent_name"])
 
         final_text = (

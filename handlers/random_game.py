@@ -2,7 +2,6 @@ import random
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ContextTypes, CallbackQueryHandler, MessageHandler, filters
 from handlers.rps_game_handler import get_user_diamonds, update_diamonds, add_win_to_ranking, get_mention
-from config import supabase
 
 ACTIVE_DICE_GAMES = {}
 
@@ -24,12 +23,12 @@ async def start_dice_request(update: Update, context: ContextTypes.DEFAULT_TYPE)
         return
 
     creator_diamonds = await get_user_diamonds(user.id)
-    if creator_diamonds < 30:
-        await message.reply_text("❌ موجودی شما برای شروع بازی باید حداقل ۳۰ طلا باشد.")
-        return
     if creator_diamonds < bet_amount:
         await message.reply_text("❌ موجودی شما برای این شرط کافی نیست.")
         return
+
+    # ۱. کسر مبلغ از سازنده بلافاصله هنگام ساخت بازی
+    await update_diamonds(user.id, -bet_amount)
 
     game_id = f"dice_{user.id}_{message.message_id}"
     ACTIVE_DICE_GAMES[game_id] = {
@@ -40,12 +39,12 @@ async def start_dice_request(update: Update, context: ContextTypes.DEFAULT_TYPE)
     }
 
     keyboard = InlineKeyboardMarkup([[
-        InlineKeyboardButton("قبول", callback_data=f"dice_join_{game_id}", style="success"),
-        InlineKeyboardButton("لغو", callback_data=f"dice_cancel_{game_id}", style="danger")
+        InlineKeyboardButton("قبول", callback_data=f"dice_join_{game_id}"),
+        InlineKeyboardButton("لغو", callback_data=f"dice_cancel_{game_id}")
     ]])
     
     await message.reply_text(
-        f"<b>درخواست بازی {bet_amount}</b>\n"
+        f"<b>درخواست بازی {bet_amount}</b>\n\n"
         f"👤 سازنده: {get_mention(user)}\n"
         f"💰 شرط: {bet_amount} طلا\n\n"
         "💬 یک نفر برای شروع بازی باید دکمه <b>« قبول »</b> را بزند!",
@@ -59,9 +58,13 @@ async def handle_dice_clicks(update: Update, context: ContextTypes.DEFAULT_TYPE)
     
     if data.startswith("dice_cancel_"):
         game_id = data.replace("dice_cancel_", "")
-        if game_id in ACTIVE_DICE_GAMES and ACTIVE_DICE_GAMES[game_id]["creator_id"] == user.id:
+        game = ACTIVE_DICE_GAMES.get(game_id)
+        
+        if game and game["creator_id"] == user.id:
+            # ۲. بازگرداندن طلا به سازنده در صورت لغو
+            await update_diamonds(user.id, game["bet_amount"])
             del ACTIVE_DICE_GAMES[game_id]
-            await query.edit_message_text("❌ بازی توسط سازنده لغو شد.")
+            await query.edit_message_text("❌ بازی توسط سازنده لغو شد و طلا به حساب شما برگشت.")
         return
 
     if data.startswith("dice_join_"):
@@ -76,39 +79,45 @@ async def handle_dice_clicks(update: Update, context: ContextTypes.DEFAULT_TYPE)
             await query.answer("شما خودتان سازنده هستید!", show_alert=True)
             return
 
+        bet = game["bet_amount"]
         opp_diamonds = await get_user_diamonds(user.id)
-        if opp_diamonds < 30 or opp_diamonds < game["bet_amount"]:
-            await query.answer("موجودی شما کافی نیست (حداقل ۳۰ طلا)!", show_alert=True)
+        
+        if opp_diamonds < bet:
+            await query.answer("موجودی شما کافی نیست!", show_alert=True)
             return
 
-        # قرعه‌کشی
-        bet = game["bet_amount"]
-        is_creator_winner = random.choice([True, False])
-        
-        winner = game["creator_id"] if is_creator_winner else user.id
-        loser = user.id if is_creator_winner else game["creator_id"]
-        
-        winner_name = game["creator_name"] if is_creator_winner else get_mention(user)
-        loser_name = get_mention(user) if is_creator_winner else game["creator_name"]
+        # ۳. کسر مبلغ از نفر دوم
+        await update_diamonds(user.id, -bet)
+        game["status"] = "finished"
 
-        # آپدیت دیتابیس
-        await update_diamonds(winner, bet)
-        await update_diamonds(loser, -bet)
-        await add_win_to_ranking(winner, winner_name)
-
-        # دریافت موجودی جدید
-        new_winner_balance = await get_user_diamonds(winner)
-        new_loser_balance = await get_user_diamonds(loser)
-
-        result_text = (
-            f"<b>بازی {bet} به پایان رسید!</b>\n\n"
-            f"👑 <b>کاربر برنده:</b> {winner_name}\n"
-            f"💰 <b>موجودی جدید:</b> {new_winner_balance} طلا\n\n"
-            f"🥶 <b>کاربر بازنده:</b> {loser_name}\n"
-            f"💰 <b>موجودی جدید:</b> {new_loser_balance} طلا"
-        )
+        # قرعه‌کشی (مساوی هم در نظر گرفته شد: عدد ۳)
+        # ۱: برد سازنده، ۲: برد حریف، ۳: مساوی
+        result = random.choice([1, 2, 3])
         
-        await query.edit_message_text(result_text, parse_mode="HTML")
+        if result == 3: # مساوی
+            await update_diamonds(game["creator_id"], bet)
+            await update_diamonds(user.id, bet)
+            await query.edit_message_text("🤝 بازی مساوی شد! طلاها به هر دو نفر بازگشت.")
+        else:
+            winner = game["creator_id"] if result == 1 else user.id
+            loser = user.id if result == 1 else game["creator_id"]
+            
+            # پرداخت جایزه به برنده (مجموع دو شرط)
+            await update_diamonds(winner, 2 * bet)
+            await add_win_to_ranking(winner, get_mention(winner))
+
+            winner_balance = await get_user_diamonds(winner)
+            loser_balance = await get_user_diamonds(loser)
+
+            await query.edit_message_text(
+                f"<b>بازی به پایان رسید!</b>\n\n"
+                f"👑 برنده: {get_mention(winner)}\n"
+                f"💰 موجودی برنده: {winner_balance}\n"
+                f"💸 بازنده: {get_mention(loser)}\n"
+                f"💰 موجودی بازنده: {loser_balance}", 
+                parse_mode="HTML"
+            )
+        
         del ACTIVE_DICE_GAMES[game_id]
 
 def register_dice_handlers(app):
