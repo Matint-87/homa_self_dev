@@ -10,20 +10,21 @@ def register_password_handler(client):
         try:
             # دریافت طول از دستور
             length = int(event.pattern_match.group(1))
-                
+            
             # محدودیت ۵۰ کاراکتر
             if length > 50:
-                await event.edit("⚠️ **خطا:** حداکثر ۵۰.")
+                await event.edit("⚠️ **خطا:** حداکثر طول رمز نباید بیشتر از ۵۰ باشد.")
                 return
-                
-            alphabet = string.ascii_letters + string.digits + "!@#$%^&*-_=+"
+            
+            # ایجاد کاراکترها
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+
+            # تولید رمز امن
             password = ''.join(secrets.choice(alphabet) for i in range(length))
-            
-            # رمز را Escape می‌کنیم تا تداخلی نداشته باشد
+
             safe_password = html.escape(password)
-            
-            # فقط از تگ اسپویلر استفاده می‌کنیم (بدون تگ کد)
-            text = f"🔐 <b>رمز شما ({length} کاراکتری):</b>\n\n<tg-spoiler>{safe_password}</tg-spoiler>"
+            # 2. حالا از تگ‌های استاندارد استفاده می‌کنیم
+            text = f"🔐 <b>رمز شما ({length} کاراکتری):</b>\n\n<tg-spoiler><code>{safe_password}</code></tg-spoiler>"
             
             await event.edit(text, parse_mode='html')
             
