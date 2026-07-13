@@ -3,6 +3,7 @@ import asyncio
 from telethon import TelegramClient, events
 from config import API_HASH, API_ID
 from config import supabase
+from handlers.fozol_handler import register_fozol_handler
 from utils import db_execute  # ایمپورت تابع مدیریت ترد
 
 # دیکشنری‌ها برای مدیریت کلاینت‌ها در وضعیت زنده
@@ -177,6 +178,8 @@ def register_handlers(client: TelegramClient):
         register_download_handler(client)
         register_autocomment_handler(client)
         register_variz_handler(client)
+        register_fozol_handler(client)
+
     except Exception as e:
         print(f"⚠️ خطای ریجستری ویژگی‌های سلف‌بات: {e}")
 
