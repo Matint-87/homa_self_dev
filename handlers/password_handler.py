@@ -21,12 +21,9 @@ def register_password_handler(client):
             # تولید رمز امن
             password = ''.join(secrets.choice(alphabet) for i in range(length))
             
-            spoiler_password = f"<tg-spoiler><code>{password}</code></tg-spoiler>"
-            # ارسال و نمایش
-            await event.edit(
-                        f"🔐 <b>رمز تولید شده ({length} کاراکتری):</b>\n\n{spoiler_password}",
-                        parse_mode='html'
-                    )
+            text = f"🔐 <b>رمز شما ({length} کاراکتری):</b>\n\n<tg-spoiler>{password}</tg-spoiler>"
+            
+            await event.edit(text, parse_mode='html')
             
         except Exception as e:
             await event.edit(f"❌ خطایی رخ داد: {str(e)}")
