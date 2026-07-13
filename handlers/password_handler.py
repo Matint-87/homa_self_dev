@@ -24,7 +24,7 @@ def register_password_handler(client):
             spoiler_password = f"<tg-spoiler><code>{password}</code></tg-spoiler>"
             # ارسال و نمایش
             await event.edit(
-                        f"🔐 <b>رمز تولید شده ({length} کاراکتری):</b>\n\n`{spoiler_password}`",
+                        f"🔐 <b>رمز تولید شده ({length} کاراکتری):</b>\n\n{spoiler_password}",
                         parse_mode='html'
                     )
             
