@@ -18,16 +18,14 @@ def register_watter_handler(client):
                 # خروجی دریافتی مثلاً: +34°C +37°C 28% 14km/h نیمه‌ابری
                 data = response.text.split()
                 
-                # چیدمان زیبا در جدول
-                table = f"""
-                    🌤 **وضعیت آب و هوا: {city}**
 
-                    🌡 دما  {data[0]} 
-                    🤗 احساس  {data[1]} 
-                    💧 رطوبت  {data[2]} 
-                    💨 باد  {data[3]} 
-                    ☁️ وضعیت  {data[4]} 
-                    """
+                table = (
+                    f"🌤 **وضعیت آب و هوا: {city}**\n\n"
+                    f"🌡 دما  {data[0]}\n"
+                    f"💧 رطوبت  {data[2]}\n"
+                    f"💨 باد  {data[3]}\n"
+                    f"☁️ وضعیت  {data[4]} \n"
+                )                
                 await event.edit(table)
             else:
                 await event.edit("❌ متأسفانه اطلاعاتی برای این شهر یافت نشد.")
