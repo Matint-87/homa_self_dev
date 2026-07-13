@@ -4,7 +4,7 @@ from config import supabase
 from utils import db_execute
 
 
-async def register_fozol_handler(client):
+def register_fozol_handler(client):
 
     @client.on(events.NewMessage)
     async def save_interaction(event):
