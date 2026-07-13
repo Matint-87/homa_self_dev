@@ -1,7 +1,7 @@
 from telethon import events
 import requests
 
-def register_handler(client):
+def register_watter_handler(client):
     
     @client.on(events.NewMessage(pattern=r'\*دما (.*)'))
     async def get_weather(event):
