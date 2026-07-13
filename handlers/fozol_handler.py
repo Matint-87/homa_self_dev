@@ -34,7 +34,7 @@ def register_fozol_handler(client):
     print("✅ Fozol handler registered successfully!")
 
     # هندلر برای نمایش لیست فضول‌ها با دستور "* فضول ها"
-    @client.on(events.NewMessage(pattern=r"^\* فضول ها$"))
+    @client.on(events.NewMessage(pattern=r"^\*فضول ها$"))
     async def show_activity(event):
         # محاسبه بازه زمانی ۲۴ ساعت گذشته
         since = (datetime.utcnow() - timedelta(hours=24)).isoformat()

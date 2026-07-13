@@ -6,7 +6,7 @@ import os
 def register_ocr_handler(client):
     
     # دستور .ocr روی پیام ریپلای شده
-    @client.on(events.NewMessage(pattern=r'\.ocr'))
+    @client.on(events.NewMessage(pattern=r"^\*متن تصویر$"))
     async def extract_text(event):
         # بررسی اینکه آیا روی عکس ریپلای شده است
         reply = await event.get_reply_message()
