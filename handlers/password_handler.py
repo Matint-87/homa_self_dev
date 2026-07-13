@@ -6,16 +6,23 @@ def register_password_handler(client):
     
     @client.on(events.NewMessage(pattern=r'\*رمز (\d+)'))
     async def generate_password(event):
-        # gereftan adad az dastor (masalan 8)
-        length = int(event.pattern_match.group(1))
-        
-        # sakht-e karaktr-haye majaz (horoof-e bozorg, koochak va adad)
-        alphabet = string.ascii_letters + string.digits + string.punctuation
-        
-        # tolid-e ramz-e amni
-        password = ''.join(secrets.choice(alphabet) for i in range(length))
-        
-        # ersal-e ramz be soorat-e edit
-        await event.edit(f"🔐 **Ramz-e tolid shode ({length} ragami):**\n\n`{password}`")
-
-    print("✅ Password handler registered successfully!")
+        try:
+            # دریافت طول از دستور
+            length = int(event.pattern_match.group(1))
+            
+            # محدودیت ۵۰ کاراکتر
+            if length > 50:
+                await event.edit("⚠️ **خطا:** حداکثر طول رمز نباید بیشتر از ۵۰ باشد.")
+                return
+            
+            # ایجاد کاراکترها
+            alphabet = string.ascii_letters + string.digits + string.punctuation
+            
+            # تولید رمز امن
+            password = ''.join(secrets.choice(alphabet) for i in range(length))
+            
+            # ارسال و نمایش
+            await event.edit(f"🔐 **رمز تولید شده ({length} کاراکتری):**\n\n||`{password}`||")
+            
+        except Exception as e:
+            await event.edit(f"❌ خطایی رخ داد: {str(e)}")

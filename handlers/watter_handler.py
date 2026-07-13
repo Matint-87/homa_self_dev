@@ -15,7 +15,6 @@ def register_watter_handler(client):
             response = requests.get(url, timeout=5)
             
             if response.status_code == 200:
-                # خروجی دریافتی مثلاً: +34°C +37°C 28% 14km/h نیمه‌ابری
                 data = response.text.split()
                 
 
