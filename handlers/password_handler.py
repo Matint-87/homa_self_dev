@@ -1,6 +1,7 @@
 from telethon import events
 import secrets
 import string
+import html # این کتابخانه را در بالای فایل ایمپورت کنید
 
 def register_password_handler(client):
     
@@ -20,8 +21,10 @@ def register_password_handler(client):
 
             # تولید رمز امن
             password = ''.join(secrets.choice(alphabet) for i in range(length))
-            
-            text = f"🔐 <b>رمز شما ({length} کاراکتری):</b>\n\n<tg-spoiler>{password}</tg-spoiler>"
+
+            safe_password = html.escape(password)
+            # 2. حالا از تگ‌های استاندارد استفاده می‌کنیم
+            text = f"🔐 <b>رمز شما ({length} کاراکتری):</b>\n\n<tg-spoiler><code>{safe_password}</code></tg-spoiler>"
             
             await event.edit(text, parse_mode='html')
             
