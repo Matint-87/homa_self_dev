@@ -1,11 +1,10 @@
 from telethon import events
 from datetime import datetime, timedelta
-
 from config import supabase
 from utils import db_execute
 
 
-def register_fozol_handler(client):
+async def register_fozol_handler(client):
 
     @client.on(events.NewMessage)
     async def save_interaction(event):
@@ -19,8 +18,7 @@ def register_fozol_handler(client):
             .upsert(
                 {
                     "user_id": sender.id,
-                    "username": sender.username or "",
-                    "first_name": sender.first_name or "",
+                    "username": sender.username or "No Username",
                     "last_seen": datetime.utcnow().isoformat(),
                 },
                 on_conflict="user_id",
@@ -46,18 +44,12 @@ def register_fozol_handler(client):
         response = await db_execute(query)
 
         if not response.data:
-            await event.reply("در ۲۴ ساعت گذشته هیچ تعاملی ثبت نشده است.")
+            await event.reply("هیچ موردی ثبت نشده است.")
             return
 
-        text = "👀 افرادی که در ۲۴ ساعت گذشته با شما تعامل داشته‌اند:\n\n"
+        msg = "👀 کاربران ثبت‌شده:\n\n"
 
-        for i, user in enumerate(response.data, 1):
-            username = (
-                f"@{user['username']}"
-                if user.get("username")
-                else user.get("first_name", "بدون نام")
-            )
+        for row in response.data:
+            msg += f"• @{row['username']}\n🆔 `{row['user_id']}`\n\n"
 
-            text += f"{i}. {username}\n🆔 `{user['user_id']}`\n\n"
-
-        await event.reply(text)
+        await event.reply(msg)
