@@ -17,12 +17,16 @@ def register_password_handler(client):
             
             # ایجاد کاراکترها
             alphabet = string.ascii_letters + string.digits + string.punctuation
-            
+
             # تولید رمز امن
             password = ''.join(secrets.choice(alphabet) for i in range(length))
             
+            spoiler_password = f"<tg-spoiler><code>{password}</code></tg-spoiler>"
             # ارسال و نمایش
-            await event.edit(f"🔐 **رمز تولید شده ({length} کاراکتری):**\n\n||`{password}`||")
+            await event.edit(
+                        f"🔐 <b>رمز تولید شده ({length} کاراکتری):</b>\n\n`{spoiler_password}`",
+                        parse_mode='html'
+                    )
             
         except Exception as e:
             await event.edit(f"❌ خطایی رخ داد: {str(e)}")
