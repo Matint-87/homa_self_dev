@@ -9,7 +9,7 @@ load_dotenv()
 client_gemini = genai.Client(api_key="AQ.Ab8RN6LyT2UnZ7EYty4sYGs6c2KCay77tUihd-xesjSu8Yw8ww")
 
 def register_anime_handler(client):
-    @client.on(events.NewMessage(pattern=r"^(\.انیمه|!انیمه)$", outgoing=True))
+    @client.on(events.NewMessage(pattern=r"'^\*انیمه$'", outgoing=True))
     async def anime_converter(event):
         if not event.is_reply:
             return await event.edit("❌ لطفاً روی یک عکس ریپلی کن.")
