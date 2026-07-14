@@ -1,7 +1,7 @@
 from telethon import events
 import secrets
 import string
-import html # این کتابخانه را در بالای فایل ایمپورت کنید
+import html 
 
 def register_password_handler(client):
     
