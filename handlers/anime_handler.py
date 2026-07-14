@@ -5,7 +5,7 @@ from google import genai
 from google.genai import types
 from dotenv import load_dotenv
 
-client_gemini = genai.Client(api_key="AQ.Ab8RN6IiTVVartMZj_bu39EMY_nM6K0UF_shiN6QBq-o4Kwv0Q")
+client_gemini = genai.Client(api_key="AQ.Ab8RN6KZ-7s7Lwwvc2jWeNYBna7CPIc3UhUs38gyMU9iuiG6pw")
 
 
 def register_anime_handler(client):
