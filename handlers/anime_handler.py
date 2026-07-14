@@ -4,7 +4,7 @@ import io
 import os
 
 # کانفیگ گوگل
-genai.configure(api_key="AQ.Ab8RN6IsJxN3x61EDwxf1q08ZkXXlntciVraW2m3MEk5JAJtbg") # کلیدت را اینجا بگذار
+genai.configure(api_key="YOUR_GEMINI_API_KEY") # کلیدت را اینجا بگذار
 model = genai.GenerativeModel('gemini-1.5-flash')
 
 def register_anime_handler(client):
