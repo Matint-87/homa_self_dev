@@ -1,45 +1,43 @@
-import google.generativeai as genai
-from telethon import events
-import io
 import os
+from telethon import events
+from google import genai
+from dotenv import load_dotenv
 
-# کانفیگ گوگل
-genai.configure(api_key="AQ.Ab8RN6IsJxN3x61EDwxf1q08ZkXXlntciVraW2m3MEk5JAJtbg") # کلیدت را اینجا بگذار
-model = genai.GenerativeModel('gemini-1.5-flash')
+# بارگذاری متغیرها از فایل .env
+load_dotenv()
+
+client_gemini = genai.Client(api_key="AQ.Ab8RN6LyT2UnZ7EYty4sYGs6c2KCay77tUihd-xesjSu8Yw8ww")
 
 def register_anime_handler(client):
     @client.on(events.NewMessage(pattern=r"^(\.انیمه|!انیمه)$", outgoing=True))
     async def anime_converter(event):
         if not event.is_reply:
-            return await event.edit("❌ لطفاً روی عکس ریپلی کن.")
+            return await event.edit("❌ لطفاً روی یک عکس ریپلی کن.")
 
         msg = await event.get_reply_message()
         if not msg.media:
             return await event.edit("❌ این پیام عکس نیست!")
 
-        status = await event.edit("⏳ در حال پردازش با هوش مصنوعی...")
+        status = await event.edit("⏳ در حال پردازش تصویر با هوش مصنوعی...")
         
         try:
-            # دانلود عکس به صورت بایت
+            # 1. دانلود عکس به صورت بایت
             photo_bytes = await client.download_media(msg, bytes)
             
-            # آماده‌سازی عکس برای Gemini
-            img_data = {"mime_type": "image/jpeg", "data": photo_bytes}
+            # 2. فراخوانی مدل با ساختار جدید google-genai
+            # نکته: مدل‌های جمینای متن تولید می‌کنند. برای خروجی تصویر، 
+            # مدل باید قابلیت تولید فایل داشته باشد یا از APIهای تخصصی تصویر استفاده شود.
+            response = client_gemini.models.generate_content(
+                model="gemini-1.5-flash",
+                contents=[
+                    "Analyze this image and provide a highly detailed anime-style description, or if the model supports, generate an image based on this input.",
+                    {"data": photo_bytes, "mime_type": "image/jpeg"}
+                ]
+            )
             
-            # درخواست تبدیل به انیمه
-            response = model.generate_content([
-                "تبدیل این عکس به یک نسخه انیمه با کیفیت بالا. فقط عکس را خروجی بده.", 
-                img_data
-            ])
-
-            # نکته مهم: Gemini مدل متنی-تصویری است. 
-            # برای تبدیل مستقیم عکس به عکس (Style Transfer)، 
-            # اگر خروجی مستقیماً عکس نبود، از سرویس‌های تخصصی‌تر استفاده کن.
-            # اما برای تحلیل و توصیف انیمه عالی عمل می‌کند.
-            
+            # 3. ارسال نتیجه به کاربر
             await event.edit("✅ پردازش انجام شد!")
-            # ارسال نتیجه به کاربر
-            await client.send_file(event.chat_id, response.text) # یا فایل پردازش شده
+            await client.send_message(event.chat_id, response.text, reply_to=msg.id)
 
         except Exception as e:
-            await event.edit(f"❌ خطا: {str(e)}")
+            await event.edit(f"❌ خطا در پردازش: {str(e)}")
