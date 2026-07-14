@@ -1,12 +1,12 @@
+
 import os
 from telethon import events
 from google import genai
+from google.genai import types
 from dotenv import load_dotenv
 
-# بارگذاری متغیرها از فایل .env
-load_dotenv()
-
 client_gemini = genai.Client(api_key="AQ.Ab8RN6LyT2UnZ7EYty4sYGs6c2KCay77tUihd-xesjSu8Yw8ww")
+
 
 def register_anime_handler(client):
     @client.on(events.NewMessage(pattern=r"^(\.انیمه|!انیمه)$", outgoing=True))
@@ -18,26 +18,36 @@ def register_anime_handler(client):
         if not msg.media:
             return await event.edit("❌ این پیام عکس نیست!")
 
-        status = await event.edit("⏳ در حال پردازش تصویر با هوش مصنوعی...")
+        # استفاده از متد edit برای نمایش وضعیت
+        status = await event.edit("⏳ در حال پردازش با هوش مصنوعی...")
         
         try:
-            # 1. دانلود عکس به صورت بایت
+            # دانلود فایل به صورت Bytes
             photo_bytes = await client.download_media(msg, bytes)
             
-            # 2. فراخوانی مدل با ساختار جدید google-genai
-            # نکته: مدل‌های جمینای متن تولید می‌کنند. برای خروجی تصویر، 
-            # مدل باید قابلیت تولید فایل داشته باشد یا از APIهای تخصصی تصویر استفاده شود.
+            # آماده‌سازی تصویر با ساختار جدید گوگل
+            image_part = types.Part.from_bytes(
+                data=photo_bytes,
+                mime_type='image/jpeg'
+            )
+            
+            # ارسال درخواست به جمینای
+            # نکته: مدل Flash برای سرعت بالا بهینه شده است
             response = client_gemini.models.generate_content(
                 model="gemini-1.5-flash",
                 contents=[
-                    "Analyze this image and provide a highly detailed anime-style description, or if the model supports, generate an image based on this input.",
-                    {"data": photo_bytes, "mime_type": "image/jpeg"}
+                    "تبدیل این عکس به یک نسخه انیمه با کیفیت بالا. فقط توصیف کن یا اگر امکان دارد یک تصویر انیمه‌ای متناسب با این عکس ایجاد کن.",
+                    image_part
                 ]
             )
             
-            # 3. ارسال نتیجه به کاربر
+            # ارسال پاسخ نهایی
             await event.edit("✅ پردازش انجام شد!")
-            await client.send_message(event.chat_id, response.text, reply_to=msg.id)
+            # محدود کردن متن برای جلوگیری از خطای تلگرام
+            result_text = response.text[:4000] if response.text else "محتوایی تولید نشد."
+            await client.send_message(event.chat_id, result_text, reply_to=msg.id)
 
         except Exception as e:
-            await event.edit(f"❌ خطا در پردازش: {str(e)}")
+            # خطا را لاگ کن که در ترمینال ببینی
+            print(f"DEBUG ERROR: {str(e)}")
+            await event.edit("❌ خطا در پردازش تصویر. لطفاً دوباره تلاش کنید.")            
