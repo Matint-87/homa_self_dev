@@ -1,9 +1,9 @@
 from telethon import events
 from telethon.tl.functions.account import UpdateProfileRequest
-from telethon.tl.functions.photos import UploadProfilePhotoRequest
+from config import supabase
+from utils import db_execute
 
-# فونت‌های ترکیبی (انگلیسی + فارسی)
-# نکته: برخی فونت‌های خاص یونیکد فقط روی حروف انگلیسی کار می‌کنند
+# تعریف دیکشنری فونت‌ها در همان فایل هندلر
 FONTS = {
     "1": str.maketrans("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ۰۱۲۳۴۵۶۷۸۹", "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡"),
     "2": str.maketrans("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "𝖺𝖻𝖼𝖽𝖾𝖿𝗀𝗁𝗂𝗃𝗄𝗅𝗆𝗇𝗈𝗉𝗊𝗋𝗌𝗍𝗎𝖏𝗐𝗑𝗒𝗓𝖠𝖡𝖢𝖣𝖤𝖥𝖦𝖧𝖨𝖩𝖪𝖫𝖬𝖭𝖮𝖯𝖰𝖱𝖲𝖳𝖴𝖵𝖶𝖷𝖸𝖹"),
@@ -18,47 +18,40 @@ FONTS = {
 }
 
 def register_profile_handler(client):
-    @client.on(events.NewMessage(outgoing=True, pattern=r'^\*(نام|فامیلی|تنظیم پروفایل|فونت نام)'))
+    
+    async def get_or_set_orig_name(client_id, first=None, last=None):
+        if first is not None:
+            await db_execute(supabase.table("user_profiles").upsert({
+                "client_id": client_id, "first_name": first, "last_name": last
+            }))
+        else:
+            res = await db_execute(supabase.table("user_profiles").select("*").eq("client_id", client_id))
+            if res.data:
+                return res.data[0]
+            me = await client.get_me()
+            await get_or_set_orig_name(client_id, me.first_name, me.last_name)
+            return {"first_name": me.first_name, "last_name": me.last_name}
+
+    @client.on(events.NewMessage(outgoing=True, pattern=r'^\*(نام|فونت نام)'))
     async def profile_handler(event):
         text = event.raw_text
-        # تبدیل اعداد فارسی به انگلیسی جهت شناسایی در دیکشنری
+        me = await client.get_me()
         tr = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
-        
-        # 1. نام
+
         if text.startswith('*نام '):
             new_name = text.replace('*نام ', '').strip()
+            await get_or_set_orig_name(me.id, new_name, me.last_name)
             await client(UpdateProfileRequest(first_name=new_name))
-            await event.edit(f"✅ نام تغییر کرد: {new_name}")
+            await event.edit(f"✅ نام اصلی به **{new_name}** تغییر کرد.")
 
-        # 2. فامیلی
-        elif text.startswith('*فامیلی '):
-            new_last = text.replace('*فامیلی ', '').strip()
-            await client(UpdateProfileRequest(last_name=new_last))
-            await event.edit(f"✅ فامیلی تغییر کرد: {new_last}")
-
-        # 3. عکس پروفایل
-        elif text == '*تنظیم پروفایل':
-            if event.is_reply:
-                reply = await event.get_reply_message()
-                if reply.media:
-                    await event.edit("⏳ در حال آپلود...")
-                    photo = await client.download_media(reply)
-                    file = await client.upload_file(photo)
-                    await client(UploadProfilePhotoRequest(file=file))
-                    await event.edit("✅ عکس پروفایل تغییر یافت.")
-                else:
-                    await event.edit("❌ ریپلای حاوی عکس نیست.")
-
-        # 4. فونت (سیستم هوشمند برای هر کاربر)
         elif text.startswith('*فونت نام '):
             font_id = text.replace('*فونت نام ', '').strip().translate(tr)
             if font_id in FONTS:
-                # این بخش برای هر کاربر به صورت ایزوله اجرا می‌شود
-                me = await client.get_me()
-                n = (me.first_name or "").translate(FONTS[font_id])
-                l = (me.last_name or "").translate(FONTS[font_id])
+                data = await get_or_set_orig_name(me.id)
+                n = (data["first_name"] or "").translate(FONTS[font_id])
+                l = (data["last_name"] or "").translate(FONTS[font_id])
                 
                 await client(UpdateProfileRequest(first_name=n, last_name=l))
-                await event.edit(f"✅ استایل {font_id} روی اکانت شما اعمال شد.")
+                await event.edit(f"✅ استایل {font_id} اعمال شد.")
             else:
-                await event.edit("❌ فونت نام باید عدد 1 تا 10 باشد.")
+                await event.edit("❌ فونت باید عدد 1 تا 10 باشد.")
