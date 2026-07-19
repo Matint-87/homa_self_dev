@@ -345,7 +345,7 @@ async def handle_panel_clicks(update, context):
             [
                 InlineKeyboardButton("اکشن", callback_data=f"sett_action_{owner_id}"),
                 InlineKeyboardButton("قفل‌ها", callback_data=f"sett_locks_{owner_id}"),
-                # InlineKeyboardButton("لوگو", callback_data=f"sett_logo_{owner_id}"),
+                InlineKeyboardButton("آب و هوا", callback_data=f"sett_weater_{owner_id}"),
                 InlineKeyboardButton("پینگ", callback_data=f"sett_ping_{owner_id}")
             ],
             [
@@ -365,8 +365,8 @@ async def handle_panel_clicks(update, context):
             [
                 InlineKeyboardButton("حذف", callback_data=f"sett_del_{owner_id}"),
                 InlineKeyboardButton("بلاک", callback_data=f"sett_block_{owner_id}"),
-                # InlineKeyboardButton("تگ", callback_data=f"sett_tag_{owner_id}"),
-                # InlineKeyboardButton("اطلاعات", callback_data=f"sett_info_{owner_id}"),
+                InlineKeyboardButton("فضول پروفایل", callback_data=f"sett_fozol_{owner_id}"),
+                InlineKeyboardButton("متن تصویر", callback_data=f"sett_orc_{owner_id}"),
                 InlineKeyboardButton("سکوت", callback_data=f"sett_mute_{owner_id}")
             ],
             [
@@ -374,7 +374,7 @@ async def handle_panel_clicks(update, context):
                 InlineKeyboardButton("سین خودکار", callback_data=f"sett_seen_{owner_id}")
             ],
             [
-                # InlineKeyboardButton("÷ / ×", callback_data=f"sett_calc_{owner_id}"),
+                InlineKeyboardButton("تنظیمات پروفایل", callback_data=f"sett_profileset_{owner_id}"),
                 InlineKeyboardButton("تقلب", callback_data=f"sett_cheat_{owner_id}"),
                 InlineKeyboardButton("انیمیشن", callback_data=f"sett_anim_{owner_id}"),
                 InlineKeyboardButton("ترجمه", callback_data=f"sett_trans_{owner_id}")
@@ -394,7 +394,7 @@ async def handle_panel_clicks(update, context):
             ],
             [
                 InlineKeyboardButton("اسکرین", callback_data=f"sett_scr_{owner_id}"),
-                # InlineKeyboardButton("قیمت ارز", callback_data=f"sett_currency_{owner_id}"),
+                InlineKeyboardButton("رمز ساز", callback_data=f"sett_pass_{owner_id}"),
                 InlineKeyboardButton("کامنت اول", callback_data=f"sett_comment_{owner_id}")
             ],
             [InlineKeyboardButton("« بازگشت", callback_data=f"panel_main_{owner_id}", style="primary")]
@@ -1342,6 +1342,130 @@ async def handle_panel_clicks(update, context):
             ">  `*ترجمه آلمانی`\n"
             "\n"
             ">  روی پیام مورد نظر ریپلای کن و دستور را بزن\n"
+
+        )
+        
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
+        
+        try:
+            await query.edit_message_text(
+                text=transe_text,
+                parse_mode="MarkdownV2", 
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        except telegram.error.BadRequest as e:
+            if "Message is not modified" in str(e): 
+                pass
+            else:
+                print(f"⚠️ Error editing transe menu: {e}")
+
+    elif data.startswith("sett_fozol_"):
+        transe_text = (
+            ">  دستورات\n"
+            "\n"
+            ">  `*فضول ها`\n"
+        )
+        
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
+        
+        try:
+            await query.edit_message_text(
+                text=transe_text,
+                parse_mode="MarkdownV2", 
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        except telegram.error.BadRequest as e:
+            if "Message is not modified" in str(e): 
+                pass
+            else:
+                print(f"⚠️ Error editing transe menu: {e}")
+
+    elif data.startswith("sett_pass_"):
+        transe_text = (
+            ">  دستورات\n"
+            "\n"
+            ">  `*رمز 12`\n"
+            "\n"
+            ">  برای اکانت هایی که میسازی رمز تولید کن که کاملا امن باشه\n"
+        )
+        
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
+        
+        try:
+            await query.edit_message_text(
+                text=transe_text,
+                parse_mode="MarkdownV2", 
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        except telegram.error.BadRequest as e:
+            if "Message is not modified" in str(e): 
+                pass
+            else:
+                print(f"⚠️ Error editing transe menu: {e}")
+
+    elif data.startswith("sett_orc_"):
+        transe_text = (
+            ">  دستورات\n"
+            "\n"
+            ">  `*متن تصویر`\n"
+            "\n"
+            ">  روی پیام مورد نظر ریپلای کن و دستور را بزن\n"
+
+        )
+        
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
+        
+        try:
+            await query.edit_message_text(
+                text=transe_text,
+                parse_mode="MarkdownV2", 
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        except telegram.error.BadRequest as e:
+            if "Message is not modified" in str(e): 
+                pass
+            else:
+                print(f"⚠️ Error editing transe menu: {e}")
+
+    elif data.startswith("sett_profileset_"):
+        transe_text = (
+            ">  دستورات\n"
+            "\n"
+            ">  `*نام متین`\n"
+            "\n"
+            ">  `*فامیلی ترابی`\n"
+            "\n"
+            ">  `*فونت نام 5`\n"
+            "\n"
+            ">  `*تنظیم پروفایل`\n"
+            "\n"
+            ">  برای دستور تنظیم پروفایل : روی پیام مورد نظر ریپلای کن و دستور را بزن\n"
+            "\n"
+            ">  فونت نام رو از بین 1 تا 10 انتخاب کن\n"
+
+        )
+        
+        keyboard = [[InlineKeyboardButton("« بازگشت", callback_data=f"panel_sett_{owner_id}", style="primary")]]
+        
+        try:
+            await query.edit_message_text(
+                text=transe_text,
+                parse_mode="MarkdownV2", 
+                reply_markup=InlineKeyboardMarkup(keyboard)
+            )
+        except telegram.error.BadRequest as e:
+            if "Message is not modified" in str(e): 
+                pass
+            else:
+                print(f"⚠️ Error editing transe menu: {e}")
+
+    elif data.startswith("sett_weater_"):
+        transe_text = (
+            ">  دستورات\n"
+            "\n"
+            ">  `*دما تهران`\n"
+            "\n"
+            ">  بجای تهران شهر خودتو بزار\n"
 
         )
         
