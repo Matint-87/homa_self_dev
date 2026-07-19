@@ -50,8 +50,8 @@ def register_profile_handler(client):
                     await event.edit("❌ ریپلای حاوی عکس نیست.")
 
         # 4. فونت (سیستم هوشمند برای هر کاربر)
-        elif text.startswith('*فونت '):
-            font_id = text.replace('*فونت ', '').strip().translate(tr)
+        elif text.startswith('*فونت نام '):
+            font_id = text.replace('*فونت نام ', '').strip().translate(tr)
             if font_id in FONTS:
                 # این بخش برای هر کاربر به صورت ایزوله اجرا می‌شود
                 me = await client.get_me()
@@ -61,4 +61,4 @@ def register_profile_handler(client):
                 await client(UpdateProfileRequest(first_name=n, last_name=l))
                 await event.edit(f"✅ استایل {font_id} روی اکانت شما اعمال شد.")
             else:
-                await event.edit("❌ فونت باید عدد 1 تا 10 باشد.")
+                await event.edit("❌ فونت نام باید عدد 1 تا 10 باشد.")
