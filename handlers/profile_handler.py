@@ -1,6 +1,6 @@
 from telethon import events
-from telethon.tl.functions.account import UpdateProfileRequest, UploadProfilePhotoRequest
-from telethon.tl.types import InputPeerSelf
+from telethon.tl.functions.account import UpdateProfileRequest
+from telethon.tl.functions.photos import UploadProfilePhotoRequest
 
 def register_profile_handler(client):
     @client.on(events.NewMessage(outgoing=True, pattern=r'^\*(نام|فامیلی|تنظیم پروفایل)'))
