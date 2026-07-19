@@ -3,22 +3,15 @@ import asyncio
 from telethon import TelegramClient, events
 from config import API_HASH, API_ID
 from config import supabase
-from utils import db_execute  # ایمپورت تابع مدیریت ترد
+from utils import db_execute  
 
-# دیکشنری‌ها برای مدیریت کلاینت‌ها در وضعیت زنده
 clients = {}
 login_data = {}
 
-# 🚦 وضعیت لحظه‌ای مجاز بودن هر کاربر (در حافظه، بدون هزینه‌ی دیتابیس در هر پیام)
-# user_id -> bool
 user_status = {}
 
-# فاصله‌ی زمانی چک کردن موجودی از دیتابیس (ثانیه)
-# روی سرور ۲ گیگ CPU / ۴ گیگ RAM با ۱۰۰۰ کاربر، مقدار پایین‌تر فشار غیرضروری
-# به دیتابیس و event loop وارد می‌کنه؛ ۲۰ ثانیه تعادل خوبیه بین سرعت واکنش و مصرف منابع.
 STATUS_POLL_INTERVAL = 20
 
-# سقف تعداد کانکشن هم‌زمان تلگرام (هم برای لود اولیه، هم برای شارژهای گروهی در حین اجرا)
 CONNECTION_SEMAPHORE_LIMIT = 50
 _connection_semaphore = asyncio.Semaphore(CONNECTION_SEMAPHORE_LIMIT)
 
@@ -86,7 +79,7 @@ def activate_client(client: TelegramClient, user_id: int):
     """
     clients[user_id] = client
     user_status[user_id] = True
-    register_guard(client, user_id)   # همیشه قبل از register_handlers
+    register_guard(client, user_id)   
     register_handlers(client)
 
 
@@ -143,7 +136,6 @@ def register_handlers(client: TelegramClient):
         from handlers.ocr_handler import register_ocr_handler
         from handlers.watter_handler import register_watter_handler
         from handlers.password_handler import register_password_handler
-        from handlers.anime_handler import register_anime_handler
         register_admin_handlers(client)
         register_chat_guard(client)
         register_clock(client)
@@ -186,7 +178,6 @@ def register_handlers(client: TelegramClient):
         register_ocr_handler(client)
         register_watter_handler(client)
         register_password_handler(client)
-        register_anime_handler(client)
     except Exception as e:
         print(f"⚠️ خطای ریجستری ویژگی‌های سلف‌بات: {e}")
 
