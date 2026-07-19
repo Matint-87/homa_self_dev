@@ -1,5 +1,6 @@
 from telethon import events
 from telethon.tl.functions.account import UpdateProfileRequest
+from telethon.tl.functions.photos import UploadProfilePhotoRequest
 from config import supabase
 from utils import db_execute
 
@@ -19,39 +20,63 @@ FONTS = {
 
 def register_profile_handler(client):
     
+    # دیتابیس برای ذخیره نام اصلی
     async def get_or_set_orig_name(client_id, first=None, last=None):
-        if first is not None:
+        if first is not None or last is not None:
             await db_execute(supabase.table("user_profiles").upsert({
                 "client_id": client_id, "first_name": first, "last_name": last
             }))
-        else:
-            res = await db_execute(supabase.table("user_profiles").select("*").eq("client_id", client_id))
-            if res.data:
-                return res.data[0]
-            me = await client.get_me()
-            await get_or_set_orig_name(client_id, me.first_name, me.last_name)
-            return {"first_name": me.first_name, "last_name": me.last_name}
+        res = await db_execute(supabase.table("user_profiles").select("*").eq("client_id", client_id))
+        if res.data:
+            return res.data[0]
+        me = await client.get_me()
+        await get_or_set_orig_name(client_id, me.first_name, me.last_name)
+        return {"first_name": me.first_name, "last_name": me.last_name}
 
-    @client.on(events.NewMessage(outgoing=True, pattern=r'^\*(نام|فونت نام)'))
+    @client.on(events.NewMessage(outgoing=True, pattern=r'^\*(نام|فامیلی|فونت نام|تنظیم پروفایل)'))
     async def profile_handler(event):
         text = event.raw_text
         me = await client.get_me()
         tr = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
 
+        # 1. تغییر نام اصلی
         if text.startswith('*نام '):
             new_name = text.replace('*نام ', '').strip()
-            await get_or_set_orig_name(me.id, new_name, me.last_name)
+            current = await get_or_set_orig_name(me.id)
+            await get_or_set_orig_name(me.id, new_name, current.get("last_name", ""))
             await client(UpdateProfileRequest(first_name=new_name))
             await event.edit(f"✅ نام اصلی به **{new_name}** تغییر کرد.")
 
+        # 2. تغییر فامیلی اصلی
+        elif text.startswith('*فامیلی '):
+            new_last = text.replace('*فامیلی ', '').strip()
+            current = await get_or_set_orig_name(me.id)
+            await get_or_set_orig_name(me.id, current.get("first_name", ""), new_last)
+            await client(UpdateProfileRequest(last_name=new_last))
+            await event.edit(f"✅ فامیلی به **{new_last}** تغییر کرد.")
+
+        # 3. تغییر عکس پروفایل
+        elif text == '*تنظیم پروفایل':
+            if event.is_reply:
+                reply = await event.get_reply_message()
+                if reply.media:
+                    await event.edit("⏳ در حال آپلود...")
+                    photo = await client.download_media(reply)
+                    file = await client.upload_file(photo)
+                    await client(UploadProfilePhotoRequest(file=file))
+                    await event.edit("✅ عکس پروفایل با موفقیت تغییر کرد.")
+                else:
+                    await event.edit("❌ ریپلای حاوی عکس نیست.")
+
+        # 4. اعمال فونت روی نام و فامیلی
         elif text.startswith('*فونت نام '):
             font_id = text.replace('*فونت نام ', '').strip().translate(tr)
             if font_id in FONTS:
                 data = await get_or_set_orig_name(me.id)
-                n = (data["first_name"] or "").translate(FONTS[font_id])
-                l = (data["last_name"] or "").translate(FONTS[font_id])
+                n = (data.get("first_name") or "").translate(FONTS[font_id])
+                l = (data.get("last_name") or "").translate(FONTS[font_id])
                 
                 await client(UpdateProfileRequest(first_name=n, last_name=l))
-                await event.edit(f"✅ استایل {font_id} اعمال شد.")
+                await event.edit(f"✅ استایل {font_id} روی پروفایل اعمال شد.")
             else:
-                await event.edit("❌ فونت باید عدد 1 تا 10 باشد.")
+                await event.edit("❌ فونت معتبر نیست (1 تا 10).")
