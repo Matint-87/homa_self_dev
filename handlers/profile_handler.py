@@ -2,7 +2,7 @@ from telethon import events
 from telethon.tl.functions.account import UpdateProfileRequest
 from telethon.tl.functions.photos import UploadProfilePhotoRequest
 
-# تعریف 10 نوع استایل مختلف (ترکیبی از انگلیسی و فارسی‌نما)
+# دیکشنری فونت‌ها (همان قبلی)
 FONTS = {
     "1": str.maketrans("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ"),
     "2": str.maketrans("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ", "𝖺𝖻𝖼𝖽𝖾𝖿𝗀𝗁𝗂𝗃𝗄𝗅𝗆𝗇𝗈𝗉𝗊𝗋𝗌𝗍𝗎𝗏𝗐𝗑𝗒𝗓𝖠𝖡𝖢𝖣𝖤𝖥𝖦𝖧𝖨𝖩𝖪𝖫𝖬𝖭𝖮𝖯𝖰𝖱𝖲𝖳𝖴𝖵𝖶𝖷𝖸𝖹"),
@@ -21,19 +21,19 @@ def register_profile_handler(client):
     async def profile_handler(event):
         text = event.raw_text
         
-        # 1. تغییر نام
+        # تبدیل اعداد فارسی به انگلیسی برای راحتی کاربر
+        persian_to_english = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+        
         if text.startswith('*نام '):
-            new_first_name = text.replace('*نام ', '').strip()
-            await client(UpdateProfileRequest(first_name=new_first_name))
-            await event.edit(f"✅ نام به **{new_first_name}** تغییر کرد.")
+            new_first = text.replace('*نام ', '').strip()
+            await client(UpdateProfileRequest(first_name=new_first))
+            await event.edit(f"✅ نام به **{new_first}** تغییر کرد.")
 
-        # 2. تغییر فامیلی
         elif text.startswith('*فامیلی '):
-            new_last_name = text.replace('*فامیلی ', '').strip()
-            await client(UpdateProfileRequest(last_name=new_last_name))
-            await event.edit(f"✅ فامیلی به **{new_last_name}** تغییر کرد.")
+            new_last = text.replace('*فامیلی ', '').strip()
+            await client(UpdateProfileRequest(last_name=new_last))
+            await event.edit(f"✅ فامیلی به **{new_last}** تغییر کرد.")
 
-        # 3. تغییر پروفایل
         elif text == '*تنظیم پروفایل':
             if event.is_reply:
                 reply = await event.get_reply_message()
@@ -46,20 +46,18 @@ def register_profile_handler(client):
                 else:
                     await event.edit("❌ ریپلای حاوی عکس نیست.")
 
-        # 4. تغییر فونت
-        elif text.startswith('*فونت نام'):
-            parts = text.split() # *فونت نام 2
-            if len(parts) == 3:
-                target, font_id = parts[1], parts[2]
-                if font_id in FONTS:
-                    me = await client.get_me()
-                    old_text = me.first_name if target == 'نام' else (me.last_name or "")
-                    new_text = old_text.translate(FONTS[font_id])
-                    
-                    if target == 'نام':
-                        await client(UpdateProfileRequest(first_name=new_text))
-                    else:
-                        await client(UpdateProfileRequest(last_name=new_text))
-                    await event.edit(f"✅ فونت {target} به استایل {font_id} تغییر یافت.")
-                else:
-                    await event.edit("❌ فونت باید بین 1 تا 10 باشد.")
+        # بخش فونت با قابلیت عدد فارسی و تغییر همزمان
+        elif text.startswith('*فونت '):
+            # مثال: *فونت ۲
+            font_id = text.replace('*فونت ', '').strip().translate(persian_to_english)
+            
+            if font_id in FONTS:
+                me = await client.get_me()
+                # تبدیل نام و فامیلی به فونت جدید
+                new_first = (me.first_name or "").translate(FONTS[font_id])
+                new_last = (me.last_name or "").translate(FONTS[font_id])
+                
+                await client(UpdateProfileRequest(first_name=new_first, last_name=new_last))
+                await event.edit(f"✅ نام و فامیلی با استایل {font_id} تنظیم شد.")
+            else:
+                await event.edit("❌ فونت باید عدد بین 1 تا 10 باشد.")
