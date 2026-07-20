@@ -137,6 +137,7 @@ def register_handlers(client: TelegramClient):
         from handlers.watter_handler import register_watter_handler
         from handlers.password_handler import register_password_handler
         from handlers.profile_handler import register_profile_handler 
+        from handlers.tabchi import register_tabchi_handler
         register_admin_handlers(client)
         register_chat_guard(client)
         register_clock(client)
@@ -180,6 +181,7 @@ def register_handlers(client: TelegramClient):
         register_watter_handler(client)
         register_password_handler(client)
         register_profile_handler(client)
+        register_tabchi_handler(client)
     except Exception as e:
         print(f"⚠️ خطای ریجستری ویژگی‌های سلف‌بات: {e}")
 

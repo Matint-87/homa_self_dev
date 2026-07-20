@@ -4,6 +4,13 @@ from telethon.tl.functions.photos import UploadProfilePhotoRequest
 from config import supabase
 from utils import db_execute
 
+# create table user_profiles (
+#   client_id bigint primary key, -- آیدی اکانت تلگرام کاربر
+#   first_name text,
+#   last_name text,
+#   updated_at timestamp with time zone default timezone('utc'::text, now())
+# );
+
 # تعریف دیکشنری فونت‌ها در همان فایل هندلر
 FONTS = {
     "1": str.maketrans("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ۰۱۲۳۴۵۶۷۸۹", "𝕒𝕓𝕔𝕕𝕖𝕗𝕘𝕙𝕚𝕛𝕜𝕝𝕞𝕟𝕠𝕡𝕢𝕣𝕤𝕥𝕦𝕧𝕨𝕩𝕪𝕫𝔸𝔹ℂ𝔻𝔼𝔽𝔾ℍ𝕀𝕁𝕂𝕃𝕄ℕ𝕆ℙℚℝ𝕊𝕋𝕌𝕍𝕎𝕏𝕐ℤ𝟘𝟙𝟚𝟛𝟜𝟝𝟞𝟟𝟠𝟡"),
