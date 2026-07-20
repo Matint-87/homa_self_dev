@@ -118,8 +118,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             InlineKeyboardButton("👥 گروه", url=GROUP_URL, style="primary"),
             InlineKeyboardButton("📢 چنل", url=CHANNEL_URL, style="primary"),
         ],
-        [InlineKeyboardButton("💰 شارژ موجودی (طلا)", callback_data="charge_gold_menu", style="danger")],
-        [InlineKeyboardButton("☎️ پشتیبانی", url=SUPPORT_URL, style="danger")],
+        [
+            InlineKeyboardButton("💰 شارژ موجودی (طلا)", callback_data="charge_gold_menu", style="danger"),
+            InlineKeyboardButton("☎️ پشتیبانی", url=SUPPORT_URL, style="danger"),
+        ],
         [InlineKeyboardButton("🤝 دعوت از دوستان (۳۵ طلا هدیه)", callback_data="menu_referral", style="success")],
         [InlineKeyboardButton("ℹ️ درباره سلف", callback_data="about_self", style="primary")],
         [InlineKeyboardButton("🔒 بستن پنل مدیریت", callback_data="close_panel", style="danger")]
