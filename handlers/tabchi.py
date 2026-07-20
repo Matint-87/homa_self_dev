@@ -26,8 +26,11 @@ def register_tabchi_handler(client):
             if not event.is_reply:
                 return await event.edit("⚠️ نکته: دستور تنظیم بنر باید حتماً روی پیام ریپلای شود.")
             
+            # ابتدا کاربر را در جدول تنظیمات ایجاد کن (اگر وجود ندارد)
+            # این کار باعث می‌شود خطای Foreign Key دیگر رخ ندهد
+            await db_execute(supabase.table("tabchi_settings").upsert({"user_id": user_id, "is_active": False}))
+            
             reply_msg = await event.get_reply_message()
-            # تشخیص نوع: اگر در متن "فور" باشد فوروارد، در غیر این صورت کپی
             b_type = "forward" if "فور" in text else "copy"
             
             query = supabase.table("tabchi_banners").insert({
@@ -37,7 +40,7 @@ def register_tabchi_handler(client):
             })
             await db_execute(query)
             await event.edit(f"✅ بنر با موفقیت در حالت {b_type} تنظیم شد.")
-
+            
         # ۴. لیست بنر
         elif text == "لیست بنر":
             query = supabase.table("tabchi_banners").select("*").eq("user_id", user_id)
