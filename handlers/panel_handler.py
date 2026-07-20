@@ -345,7 +345,7 @@ async def handle_panel_clicks(update, context):
             [
                 InlineKeyboardButton("اکشن", callback_data=f"sett_action_{owner_id}"),
                 InlineKeyboardButton("قفل‌ها", callback_data=f"sett_locks_{owner_id}"),
-                InlineKeyboardButton("آب و هوا", callback_data=f"sett_weater_{owner_id}"),
+                InlineKeyboardButton("دما", callback_data=f"sett_weater_{owner_id}"),
                 InlineKeyboardButton("پینگ", callback_data=f"sett_ping_{owner_id}")
             ],
             [
@@ -365,7 +365,7 @@ async def handle_panel_clicks(update, context):
             [
                 InlineKeyboardButton("حذف", callback_data=f"sett_del_{owner_id}"),
                 InlineKeyboardButton("بلاک", callback_data=f"sett_block_{owner_id}"),
-                InlineKeyboardButton("فضول پروفایل", callback_data=f"sett_fozol_{owner_id}"),
+                # InlineKeyboardButton("فضول پروفایل", callback_data=f"sett_fozol_{owner_id}"),
                 InlineKeyboardButton("متن تصویر", callback_data=f"sett_orc_{owner_id}"),
                 InlineKeyboardButton("سکوت", callback_data=f"sett_mute_{owner_id}")
             ],
@@ -374,7 +374,7 @@ async def handle_panel_clicks(update, context):
                 InlineKeyboardButton("سین خودکار", callback_data=f"sett_seen_{owner_id}")
             ],
             [
-                InlineKeyboardButton("تنظیمات پروفایل", callback_data=f"sett_profileset_{owner_id}"),
+                InlineKeyboardButton("پروفایل", callback_data=f"sett_profileset_{owner_id}"),
                 InlineKeyboardButton("تقلب", callback_data=f"sett_cheat_{owner_id}"),
                 InlineKeyboardButton("انیمیشن", callback_data=f"sett_anim_{owner_id}"),
                 InlineKeyboardButton("ترجمه", callback_data=f"sett_trans_{owner_id}")
@@ -386,7 +386,7 @@ async def handle_panel_clicks(update, context):
                 InlineKeyboardButton("تبدیل متن به ویس", callback_data=f"sett_ttv_{owner_id}")
             ],
             [
-                # InlineKeyboardButton("فضول پروفایل", callback_data=f"sett_stalker_{owner_id}"),
+                InlineKeyboardButton("فضول پروفایل", callback_data=f"sett_fozol_{owner_id}"),
                 InlineKeyboardButton("اطلاعات", callback_data=f"sett_info_{owner_id}"),
                 # InlineKeyboardButton("تبچی", callback_data=f"sett_tabchi_{owner_id}"),
                 InlineKeyboardButton("لوگو", callback_data=f"sett_logo_{owner_id}"),
