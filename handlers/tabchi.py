@@ -1,7 +1,8 @@
 from telethon import events
 from utils import db_execute
+from config import supabase
 
-def register_tabchi_handler(client, supabase):
+def register_tabchi_handler(client):
     @client.on(events.NewMessage(pattern=r'^\.?(.*)'))
     async def tabchi_handler(event):
         # دریافت متن پیام و حذف فواصل اضافه
