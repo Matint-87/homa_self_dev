@@ -386,7 +386,7 @@ async def handle_panel_clicks(update, context):
                 InlineKeyboardButton("تبدیل متن به ویس", callback_data=f"sett_ttv_{owner_id}")
             ],
             [
-                InlineKeyboardButton("فضول پروفایل", callback_data=f"sett_fozol_{owner_id}"),
+                # InlineKeyboardButton("فضول پروفایل", callback_data=f"sett_fozol_{owner_id}"),
                 InlineKeyboardButton("اطلاعات", callback_data=f"sett_info_{owner_id}"),
                 # InlineKeyboardButton("تبچی", callback_data=f"sett_tabchi_{owner_id}"),
                 InlineKeyboardButton("لوگو", callback_data=f"sett_logo_{owner_id}"),
