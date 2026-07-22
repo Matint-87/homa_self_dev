@@ -7,7 +7,7 @@ active_tabchis = {}
 
 def register_tabchi_handler(client: TelegramClient):
     
-    # --- ۱. تنظیم بنر ساده (مثلا *تنظیم بنر 1) ---
+    # --- ۱. تنظیم بنر (فقط نام بنر + ریپلای روی متن) ---
     @client.on(events.NewMessage(pattern=r'^\*تنظیم بنر ([^\s]+)$'))
     async def set_banner(event):
         user_id = event.sender_id
@@ -33,42 +33,40 @@ def register_tabchi_handler(client: TelegramClient):
         )
         await event.edit(f"✅ بنر **{banner_name}** با موفقیت ذخیره شد.")
 
-    # --- ۲. تنظیم بنر با نوع (کپی یا فور) و سرعت (مثلا *تنظیم بنر 30 یا *تنظیم بنر 1 کپی) ---
-    @client.on(events.NewMessage(pattern=r'^\*تنظیم بنر ([^\s]+)(?: (\d+))?(?: (کپی|فور))?$'))
+    # --- ۲. تنظیم سرعت تبچی با دستور جداگانه (مثلا *سرعت تبچی 30) ---
+    @client.on(events.NewMessage(pattern=r'^\*سرعت تبچی (\d+)$'))
+    async def set_tabchi_speed(event):
+        user_id = event.sender_id
+        delay = int(event.pattern_match.group(1))
+        delay = max(10, min(60, delay)) # محدودیت بین ۱۰ ثانیه تا ۱ دقیقه
+        
+        await db_execute(
+            supabase.table("tabchi_settings").upsert({
+                "user_id": user_id,
+                "delay_seconds": delay
+            }, on_conflict="user_id")
+        )
+        await event.edit(f"⏱️ سرعت ارسال تبچی روی **{delay} ثانیه** تنظیم شد.")
+
+    # --- ۳. ارسال یا فوروارد تکی بنر ذخیره‌شده ---
+    @client.on(events.NewMessage(pattern=r'^\*(ارسال|فوروارد) بنر ([^\s]+)$'))
     async def send_banner_action(event):
         user_id = event.sender_id
-        banner_name = event.pattern_match.group(1).strip()
-        delay_arg = event.pattern_match.group(2)
-        action_type = event.pattern_match.group(3) or "کپی"
+        action_type = event.pattern_match.group(1)
+        banner_name = event.pattern_match.group(2).strip()
         
-        # اگر کاربر به جای نوع، عدد (تاخیر) فرستاده باشد یا دستور به صورت تنظیم بنر 30 باشد
-        if delay_arg:
-            delay = int(delay_arg)
-            delay = max(10, min(60, delay)) # محدودیت بین ۱۰ ثانیه تا ۱ دقیقه
-            
-            # آپدیت سرعت در جدول تنظیمات
-            await db_execute(
-                supabase.table("tabchi_settings").upsert({
-                    "user_id": user_id,
-                    "delay_seconds": delay
-                }, on_conflict="user_id")
-            )
-            await event.edit(f"⏱️ سرعت ارسال تبچی به **{delay} ثانیه** تغییر کرد.")
-            return
-
-        # در غیر این صورت عملیات ارسال/تست بنر انجام می‌شود
         res = await db_execute(
-            supabase.table("banners").select("banner_text", "banner_type").eq("user_id", user_id).eq("banner_name", banner_name)
+            supabase.table("banners").select("banner_text").eq("user_id", user_id).eq("banner_name", banner_name)
         )
         if not res.data:
             return await event.edit(f"❌ بنری با نام '{banner_name}' پیدا نشد.")
         
         text = res.data[0]["banner_text"]
         
-        if action_type == "کپی":
+        if action_type == "ارسال":
             await event.respond(text)
             await event.delete()
-        elif action_type == "فور":
+        elif action_type == "فوروارد":
             if event.is_reply:
                 reply_msg = await event.get_reply_message()
                 await reply_msg.forward_to(event.chat_id)
@@ -76,7 +74,7 @@ def register_tabchi_handler(client: TelegramClient):
                 await event.respond(text)
             await event.delete()
 
-    # --- ۳. لیست بنرها (همراه با متن) ---
+    # --- ۴. لیست بنرها (همراه با متن) ---
     @client.on(events.NewMessage(pattern=r'^\*لیست بنر$'))
     async def list_banners(event):
         user_id = event.sender_id
@@ -92,7 +90,7 @@ def register_tabchi_handler(client: TelegramClient):
         
         await event.edit(msg)
 
-    # --- ۴. پاکسازی ---
+    # --- ۵. پاکسازی‌ها ---
     @client.on(events.NewMessage(pattern=r'^\*پاکسازی لیست بنر$'))
     async def clear_banners(event):
         user_id = event.sender_id
@@ -111,7 +109,7 @@ def register_tabchi_handler(client: TelegramClient):
         await db_execute(supabase.table("tabchi_settings").delete().eq("user_id", user_id))
         await event.edit("⚠️ کل اطلاعات و تنظیمات تبچی شما پاک و ریست شد.")
 
-    # --- ۵. مدیریت گپ‌ها (محدودیت حداکثر ۵ گپ) ---
+    # --- ۶. مدیریت گپ‌ها (حداکثر ۵ گپ) ---
     @client.on(events.NewMessage(pattern=r'^\*تبچی گپ (@\S+)$'))
     async def add_tabchi_chat(event):
         user_id = event.sender_id
@@ -154,7 +152,7 @@ def register_tabchi_handler(client: TelegramClient):
         await db_execute(supabase.table("tabchi_chats").delete().eq("user_id", user_id))
         await event.edit("🗑️ تمام گپ‌های تبچی پاک شدند.")
 
-    # --- ۶. لوپ پس‌زمینه تبچی ---
+    # --- ۷. لوپ پس‌زمینه تبچی با سرعت پیش‌فرض ۲۰ ثانیه ---
     async def tabchi_worker(client: TelegramClient, user_id: int):
         try:
             while True:
@@ -181,13 +179,12 @@ def register_tabchi_handler(client: TelegramClient):
         except asyncio.CancelledError:
             pass
 
-    @client.on(events.NewMessage(pattern=r'^\*تبچی روشن(?: (\d+))?$'))
+    @client.on(events.NewMessage(pattern=r'^\*تبچی روشن$'))
     async def turn_on_tabchi(event):
         user_id = event.sender_id
-        args = event.pattern_match.group(1)
         
-        delay = int(args) if args and args.isdigit() else 20
-        delay = max(10, min(60, delay))
+        settings = await db_execute(supabase.table("tabchi_settings").select("delay_seconds").eq("user_id", user_id))
+        delay = settings.data[0]["delay_seconds"] if settings.data and "delay_seconds" in settings.data[0] else 20
         
         await db_execute(
             supabase.table("tabchi_settings").upsert({
@@ -201,7 +198,7 @@ def register_tabchi_handler(client: TelegramClient):
             active_tabchis[user_id].cancel()
             
         active_tabchis[user_id] = asyncio.create_task(tabchi_worker(event.client, user_id))
-        await event.edit(f"🟢 **تبچی روشن شد!**\n⏱️ سرعت ارسال: هر {delay} ثانیه یک‌بار.")
+        await event.edit(f"🟢 **تبچی روشن شد!**\n⏱️ سرعت پیش‌فرض: هر {delay} ثانیه یک‌بار.")
 
     @client.on(events.NewMessage(pattern=r'^\*تبچی خاموش$'))
     async def turn_off_tabchi(event):
