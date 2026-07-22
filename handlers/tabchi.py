@@ -8,7 +8,7 @@ active_tabchis = {}
 def register_tabchi_handler(client: TelegramClient):
     
     # --- ۱. تنظیم بنر (فقط نام بنر + ریپلای روی متن) ---
-    @client.on(events.NewMessage(pattern=r'^\*تنظیم بنر ([^\s]+)$'))
+    @client.on(events.NewMessage(pattern=r'^\*تنظیم بنر'))
     async def set_banner(event):
         user_id = event.sender_id
         banner_name = event.pattern_match.group(1).strip()
@@ -49,7 +49,7 @@ def register_tabchi_handler(client: TelegramClient):
         await event.edit(f"⏱️ سرعت ارسال تبچی روی **{delay} ثانیه** تنظیم شد.")
 
     # --- ۳. ارسال یا فوروارد تکی بنر ذخیره‌شده ---
-    @client.on(events.NewMessage(pattern=r'^\*(ارسال|فوروارد) بنر ([^\s]+)$'))
+    @client.on(events.NewMessage(pattern=r'^\*(ارسال|فوروارد) بنر'))
     async def send_banner_action(event):
         user_id = event.sender_id
         action_type = event.pattern_match.group(1)
