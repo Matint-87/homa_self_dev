@@ -7,12 +7,11 @@ active_tabchis = {}
 
 def register_tabchi_handler(client: TelegramClient):
     
-    # --- ۱. تنظیم بنر (نام یا نوع اختیاری: *تنظیم بنر یا *تنظیم بنر فور یا *تنظیم بنر 1) ---
-    @client.on(events.NewMessage(pattern=r'^\*تنظیم بنر(?:\s+([^\s]+))?(?:\s+(کپی|فور))?$'))
+    # --- ۱. تنظیم ساده بنر (با نام اختیاری یا خودکار) ---
+    @client.on(events.NewMessage(pattern=r'^\*تنظیم بنر(?:\s+([^\s]+))?$'))
     async def set_banner(event):
         user_id = event.sender_id
-        arg1 = event.pattern_match.group(1)
-        arg2 = event.pattern_match.group(2)
+        banner_name = event.pattern_match.group(1)
         
         if not event.is_reply:
             return await event.edit("❌ لطفاً روی یک پیام (بنر) ریپلای کنید!")
@@ -20,18 +19,6 @@ def register_tabchi_handler(client: TelegramClient):
         reply_msg = await event.get_reply_message()
         banner_content = reply_msg.text or reply_msg.caption or ""
         
-        # تشخیص اینکه آرگومان اول اسم بنر بوده یا نوع ارسال (کپی/فور)
-        banner_type = "کپی"
-        banner_name = None
-        
-        if arg1 in ["کپی", "فور"]:
-            banner_type = arg1
-        elif arg1:
-            banner_name = arg1.strip()
-            
-        if arg2:
-            banner_type = arg2
-
         res = await db_execute(supabase.table("banners").select("banner_name", count="exact").eq("user_id", user_id))
         if res.count >= 10:
             return await event.edit("❌ شما به سقف مجاز (حداکثر ۱۰ بنر) رسیدید!")
@@ -43,16 +30,17 @@ def register_tabchi_handler(client: TelegramClient):
             while str(counter) in existing_names:
                 counter += 1
             banner_name = str(counter)
+        else:
+            banner_name = banner_name.strip()
         
         await db_execute(
             supabase.table("banners").upsert({
                 "user_id": user_id,
                 "banner_name": banner_name,
-                "banner_text": banner_content,
-                "banner_type": banner_type
+                "banner_text": banner_content
             }, on_conflict="user_id,banner_name")
         )
-        await event.edit(f"✅ بنر **{banner_name}** با حالت **{banner_type}** با موفقیت ذخیره شد.")
+        await event.edit(f"✅ بنر **{banner_name}** با موفقیت ذخیره شد.")
 
     # --- ۲. تنظیم سرعت تبچی با دستور جداگانه ---
     @client.on(events.NewMessage(pattern=r'^\*سرعت تبچی\s+(\d+)$'))
@@ -77,7 +65,7 @@ def register_tabchi_handler(client: TelegramClient):
         banner_name = event.pattern_match.group(2).strip()
         
         res = await db_execute(
-            supabase.table("banners").select("banner_text", "banner_type").eq("user_id", user_id).eq("banner_name", banner_name)
+            supabase.table("banners").select("banner_text").eq("user_id", user_id).eq("banner_name", banner_name)
         )
         if not res.data:
             return await event.edit(f"❌ بنری با نام '{banner_name}' پیدا نشد.")
@@ -95,11 +83,11 @@ def register_tabchi_handler(client: TelegramClient):
                 await event.respond(text)
             await event.delete()
 
-    # --- ۴. لیست بنرها (همراه با متن و نوع) ---
+    # --- ۴. لیست بنرها ---
     @client.on(events.NewMessage(pattern=r'^\*لیست بنر$'))
     async def list_banners(event):
         user_id = event.sender_id
-        res = await db_execute(supabase.table("banners").select("banner_name", "banner_text", "banner_type").eq("user_id", user_id))
+        res = await db_execute(supabase.table("banners").select("banner_name", "banner_text").eq("user_id", user_id))
         
         if not res.data:
             return await event.edit("📭 هیچ بنری ثبت نشده است.")
@@ -107,7 +95,7 @@ def register_tabchi_handler(client: TelegramClient):
         msg = "📋 **لیست بنرهای شما:**\n"
         for row in res.data:
             preview = row["banner_text"][:25] + "..." if len(row["banner_text"]) > 25 else row["banner_text"]
-            msg += f"\n🔸 **{row['banner_name']}** ({row['banner_type']}): `{preview}`"
+            msg += f"\n🔸 **{row['banner_name']}**: `{preview}`"
         
         await event.edit(msg)
 
@@ -173,7 +161,7 @@ def register_tabchi_handler(client: TelegramClient):
         await db_execute(supabase.table("tabchi_chats").delete().eq("user_id", user_id))
         await event.edit("🗑️ تمام گپ‌های تبچی پاک شدند.")
 
-    # --- ۷. لوپ پس‌زمینه تبچی (ارسال بر اساس نوع کپی یا فور) ---
+    # --- ۷. لوپ پس‌زمینه تبچی (ارسال بنرها به گپ‌ها) ---
     async def tabchi_worker(client: TelegramClient, user_id: int):
         try:
             while True:
@@ -182,21 +170,20 @@ def register_tabchi_handler(client: TelegramClient):
                 delay = max(10, min(60, delay))
                 
                 chats_res = await db_execute(supabase.table("tabchi_chats").select("chat_username").eq("user_id", user_id))
-                banners_res = await db_execute(supabase.table("banners").select("banner_text", "banner_type").eq("user_id", user_id))
+                banners_res = await db_execute(supabase.table("banners").select("banner_text").eq("user_id", user_id))
                 
                 if chats_res.data and banners_res.data:
                     chats = [c["chat_username"] for c in chats_res.data]
+                    banners = [b["banner_text"] for b in banners_res.data]
                     
                     for chat in chats:
-                        for banner_info in banners_res.data:
-                            banner_text = banner_info["banner_text"]
-                            banner_type = banner_info["banner_type"]
+                        sent_count = 0
+                        for banner in banners:
+                            if sent_count >= 10:  # محدودیت: حداکثر ارسال 10 بنر در هر دور برای هر گپ
+                                break
                             try:
-                                if banner_type == "فور":
-                                    # اگر پیام اصلی برای فوروارد در دسترس باشد یا ارسال متنی انجام شود
-                                    await client.send_message(chat, banner_text)
-                                else:
-                                    await client.send_message(chat, banner_text)
+                                await client.send_message(chat, banner)
+                                sent_count += 1
                                 await asyncio.sleep(1.5)
                             except Exception as e:
                                 print(f"Tabchi Error [User {user_id}] -> {chat}: {e}")
