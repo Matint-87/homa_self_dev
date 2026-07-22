@@ -35,6 +35,7 @@ GROUP_ID = "@Homa_self_Gp"
 CHANNEL_URL = "https://t.me/Homa_self_Ch"
 GROUP_URL = "https://t.me/Homa_self_Gp"
 SUPPORT_URL = "https://t.me/HOMA_SELFBOT_SUPPORT"
+EMOJI_ID = "5368324170671202286"
 
 MAIN_MENU, START_PAYMENT, PHONE, CODE, PASSWORD, ENTER_INVITE_CODE = range(6)
 
@@ -102,29 +103,29 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     session_exists = os.path.exists(f"new_sessions/{user_id}.session")
 
     keyboard = [
-        [InlineKeyboardButton("⚙️ مدیریت و فعال‌سازی سلف‌بات", callback_data="menu_activation", style="success")]
+        [InlineKeyboardButton("⚙️ مدیریت و فعال‌سازی سلف‌بات", callback_data="menu_activation", style="success", icon_custom_emoji_id=EMOJI_ID)]
     ]
 
     try:
         query = supabase.table("users_diamonds").select("referred_by").eq("user_id", user_id)
         user_row = await db_execute(query)
         if not user_row.data or user_row.data[0].get("referred_by") is None:
-            keyboard.append([InlineKeyboardButton("🎁 وارد کردن کد دعوت دوستان", callback_data="enter_invite_menu", style="danger")])
+            keyboard.append([InlineKeyboardButton("🎁 وارد کردن کد دعوت دوستان", callback_data="enter_invite_menu", style="danger", icon_custom_emoji_id=EMOJI_ID)])
     except:
         pass
 
     keyboard.extend([
         [
-            InlineKeyboardButton("👥 گروه", url=GROUP_URL, style="primary"),
-            InlineKeyboardButton("📢 چنل", url=CHANNEL_URL, style="primary"),
+            InlineKeyboardButton("👥 گروه", url=GROUP_URL, style="primary", icon_custom_emoji_id=EMOJI_ID),
+            InlineKeyboardButton("📢 چنل", url=CHANNEL_URL, style="primary", icon_custom_emoji_id=EMOJI_ID),
         ],
         [
-            InlineKeyboardButton("💰 شارژ موجودی (طلا)", callback_data="charge_gold_menu", style="danger"),
-            InlineKeyboardButton("☎️ پشتیبانی", url=SUPPORT_URL, style="danger"),
+            InlineKeyboardButton("💰 شارژ موجودی (طلا)", callback_data="charge_gold_menu", style="danger", icon_custom_emoji_id=EMOJI_ID),
+            InlineKeyboardButton("☎️ پشتیبانی", url=SUPPORT_URL, style="danger", icon_custom_emoji_id=EMOJI_ID),
         ],
-        [InlineKeyboardButton("🤝 دعوت از دوستان (۳۵ طلا هدیه)", callback_data="menu_referral", style="success")],
-        [InlineKeyboardButton("ℹ️ درباره سلف", callback_data="about_self", style="primary")],
-        [InlineKeyboardButton("🔒 بستن پنل مدیریت", callback_data="close_panel", style="danger")]
+        [InlineKeyboardButton("🤝 دعوت از دوستان (۳۵ طلا هدیه)", callback_data="menu_referral", style="success", icon_custom_emoji_id=EMOJI_ID)],
+        [InlineKeyboardButton("ℹ️ درباره سلف", callback_data="about_self", style="primary", icon_custom_emoji_id=EMOJI_ID)],
+        [InlineKeyboardButton("🔒 بستن پنل مدیریت", callback_data="close_panel", style="danger", icon_custom_emoji_id=EMOJI_ID)]
     ])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -182,16 +183,16 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
         if session_exists:
             status_buttons = []
             if is_active_db:
-                status_buttons.append(InlineKeyboardButton("⏸ خاموش کردن سلف", callback_data="self_stop", style="danger"))
+                status_buttons.append(InlineKeyboardButton("⏸ خاموش کردن سلف", callback_data="self_stop", style="danger", icon_custom_emoji_id=EMOJI_ID))
             else:
-                status_buttons.append(InlineKeyboardButton("▶️ روشن کردن سلف", callback_data="self_start", style="success"))
+                status_buttons.append(InlineKeyboardButton("▶️ روشن کردن سلف", callback_data="self_start", style="success", icon_custom_emoji_id=EMOJI_ID))
 
-            status_buttons.append(InlineKeyboardButton("🗑 حذف کامل سلف", callback_data="self_delete", style="danger"))
+            status_buttons.append(InlineKeyboardButton("🗑 حذف کامل سلف", callback_data="self_delete", style="danger", icon_custom_emoji_id=EMOJI_ID))
             keyboard.append(status_buttons)
         else:
-            keyboard.append([InlineKeyboardButton("🌟 پرداخت و تایید (۳۰ طلا)", callback_data="pay_activation", style="success")])
+            keyboard.append([InlineKeyboardButton("🌟 پرداخت و تایید (۳۰ طلا)", callback_data="pay_activation", style="success", icon_custom_emoji_id=EMOJI_ID)])
 
-        keyboard.append([InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary")])
+        keyboard.append([InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary", icon_custom_emoji_id=EMOJI_ID)])
 
         status_str = ("🟢 روشن" if is_active_db else "🔴 خاموش") if session_exists else "❌ فعال‌سازی نشده"
         await query.edit_message_text(
@@ -205,7 +206,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
     # ---------------------------------------------------------
     elif data == "about_self":
         keyboard = [
-            [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary")]
+            [InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary", icon_custom_emoji_id=EMOJI_ID)]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -233,7 +234,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             f"با لینک خود دوستانتان را دعوت کنید. زمانی که دوست شما وارد ربات شده و اقدام به فعال‌سازی سلف‌بات خود (با پرداخت طلا) کند، سیستم به طور خودکار به شما **۳۵ طلا** هدیه می‌دهد!💰\n\n"
             f"🔗 لینک دعوت اختصاصی شما:\n`{invite_link}`\n\n🆔 کد دعوت شما: `{user_id}`"
         )
-        keyboard = [[InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary")]]
+        keyboard = [[InlineKeyboardButton("🔙 بازگشت به منوی اصلی", callback_data="back_to_main", style="primary", icon_custom_emoji_id=EMOJI_ID)]]
         await query.edit_message_text(referral_text, reply_markup=InlineKeyboardMarkup(keyboard))
         return MAIN_MENU
 
@@ -250,7 +251,7 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
                 await query.edit_message_text(f"⚠️ خطایی در ثبت خودکار رخ داد: {e}")
             return MAIN_MENU
 
-        keyboard = [[InlineKeyboardButton("🔙 انصراف و بازگشت", callback_data="cancel_to_menu", style="primary")]]
+        keyboard = [[InlineKeyboardButton("🔙 انصراف و بازگشت", callback_data="cancel_to_menu", style="primary", icon_custom_emoji_id=EMOJI_ID)]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await query.edit_message_text(
@@ -270,9 +271,9 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
             [InlineKeyboardButton("1", callback_data="gold_1"), InlineKeyboardButton("2", callback_data="gold_2"), InlineKeyboardButton("3", callback_data="gold_3")],
             [InlineKeyboardButton("4", callback_data="gold_4"), InlineKeyboardButton("5", callback_data="gold_5"), InlineKeyboardButton("6", callback_data="gold_6")],
             [InlineKeyboardButton("7", callback_data="gold_7"), InlineKeyboardButton("8", callback_data="gold_8"), InlineKeyboardButton("9", callback_data="gold_9")],
-            [InlineKeyboardButton("Clear ❌", callback_data="gold_clear", style="danger"), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete", style="primary")],
-            [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay", style="success")],
-            [InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_main", style="primary")]
+            [InlineKeyboardButton("Clear ❌", callback_data="gold_clear", style="danger", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete", style="primary", icon_custom_emoji_id=EMOJI_ID)],
+            [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay", style="success", icon_custom_emoji_id=EMOJI_ID)],
+            [InlineKeyboardButton("🔙 بازگشت", callback_data="back_to_main", style="primary", icon_custom_emoji_id=EMOJI_ID)]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -304,8 +305,8 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
         formatted_amount = "{:,}".format(final_amount)
 
         keyboard = [
-            [InlineKeyboardButton("🔙 بازگشت به ماشین حساب", callback_data="charge_gold_menu", style="primary")],
-            [InlineKeyboardButton("🔙 منوی اصلی ربات", callback_data="back_to_main", style="success")]
+            [InlineKeyboardButton("🔙 بازگشت به ماشین حساب", callback_data="charge_gold_menu", style="primary", icon_custom_emoji_id=EMOJI_ID)],
+            [InlineKeyboardButton("🔙 منوی اصلی ربات", callback_data="back_to_main", style="success", icon_custom_emoji_id=EMOJI_ID)]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -355,12 +356,12 @@ async def handle_main_menu_clicks(update: Update, context: ContextTypes.DEFAULT_
         formatted_amount = "{:,}".format(final_amount)
 
         keyboard = [
-            [InlineKeyboardButton("1", callback_data="gold_1"), InlineKeyboardButton("2", callback_data="gold_2"), InlineKeyboardButton("3", callback_data="gold_3")],
-            [InlineKeyboardButton("4", callback_data="gold_4"), InlineKeyboardButton("5", callback_data="gold_5"), InlineKeyboardButton("6", callback_data="gold_6")],
-            [InlineKeyboardButton("7", callback_data="gold_7"), InlineKeyboardButton("8", callback_data="gold_8"), InlineKeyboardButton("9", callback_data="gold_9")],
-            [InlineKeyboardButton("Clear ❌", callback_data="gold_clear", style="danger"), InlineKeyboardButton("0", callback_data="gold_0"), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete", style="primary")],
-            [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay", style="success")],
-            [InlineKeyboardButton("🔙 بازگشت و بسته شدن پنل", callback_data="back_to_main", style="primary")]
+            [InlineKeyboardButton("1", callback_data="gold_1", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("2", callback_data="gold_2", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("3", callback_data="gold_3", icon_custom_emoji_id=EMOJI_ID)],
+            [InlineKeyboardButton("4", callback_data="gold_4", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("5", callback_data="gold_5", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("6", callback_data="gold_6", icon_custom_emoji_id=EMOJI_ID)],
+            [InlineKeyboardButton("7", callback_data="gold_7", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("8", callback_data="gold_8", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("9", callback_data="gold_9", icon_custom_emoji_id=EMOJI_ID)],
+            [InlineKeyboardButton("Clear ❌", callback_data="gold_clear", style="danger", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("0", callback_data="gold_0", icon_custom_emoji_id=EMOJI_ID), InlineKeyboardButton("Delete ⬅️", callback_data="gold_delete", style="primary", icon_custom_emoji_id=EMOJI_ID)],
+            [InlineKeyboardButton("💳 رفتن برای پرداخت", callback_data="gold_pay", style="success", icon_custom_emoji_id=EMOJI_ID)],
+            [InlineKeyboardButton("🔙 بازگشت و بسته شدن پنل", callback_data="back_to_main", style="primary", icon_custom_emoji_id=EMOJI_ID)]
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
