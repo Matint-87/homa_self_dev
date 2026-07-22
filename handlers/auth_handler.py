@@ -128,7 +128,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("🔒 بستن پنل مدیریت", callback_data="close_panel", style="danger", icon_custom_emoji_id=EMOJI_ID)]
     ])
 
-    reply_markup = InlineKeyboardMarkup(keyboard, reply_markup)
+    reply_markup = InlineKeyboardMarkup(keyboard)
     welcome_text = "👋 به ربات مدیریت هوما سلف‌بات خوش آمدید!\nلطفاً از منوی زیر گزینه مورد نظر خود را انتخاب کنید:\n\n"
 
     if session_exists:
