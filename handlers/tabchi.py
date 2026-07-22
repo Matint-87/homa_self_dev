@@ -7,8 +7,8 @@ active_tabchis = {}
 
 def register_tabchi_handler(client: TelegramClient):
     
-    # --- ۱. تنظیم بنر (فقط نام بنر + ریپلای روی متن) ---
-    @client.on(events.NewMessage(pattern=r'^\*تنظیم بنر'))
+    # --- ۱. تنظیم بنر (گرفتن نام بنر با پرانتز گروه بندی) ---
+    @client.on(events.NewMessage(pattern=r'^\*تنظیم بنر\s+([^\s]+)$'))
     async def set_banner(event):
         user_id = event.sender_id
         banner_name = event.pattern_match.group(1).strip()
@@ -33,12 +33,12 @@ def register_tabchi_handler(client: TelegramClient):
         )
         await event.edit(f"✅ بنر **{banner_name}** با موفقیت ذخیره شد.")
 
-    # --- ۲. تنظیم سرعت تبچی با دستور جداگانه (مثلا *سرعت تبچی 30) ---
-    @client.on(events.NewMessage(pattern=r'^\*سرعت تبچی (\d+)$'))
+    # --- ۲. تنظیم سرعت تبچی با دستور جداگانه ---
+    @client.on(events.NewMessage(pattern=r'^\*سرعت تبچی\s+(\d+)$'))
     async def set_tabchi_speed(event):
         user_id = event.sender_id
         delay = int(event.pattern_match.group(1))
-        delay = max(10, min(60, delay)) # محدودیت بین ۱۰ ثانیه تا ۱ دقیقه
+        delay = max(10, min(60, delay))
         
         await db_execute(
             supabase.table("tabchi_settings").upsert({
@@ -49,7 +49,7 @@ def register_tabchi_handler(client: TelegramClient):
         await event.edit(f"⏱️ سرعت ارسال تبچی روی **{delay} ثانیه** تنظیم شد.")
 
     # --- ۳. ارسال یا فوروارد تکی بنر ذخیره‌شده ---
-    @client.on(events.NewMessage(pattern=r'^\*(ارسال|فوروارد) بنر'))
+    @client.on(events.NewMessage(pattern=r'^\*(ارسال|فوروارد)\s+بنر\s+([^\s]+)$'))
     async def send_banner_action(event):
         user_id = event.sender_id
         action_type = event.pattern_match.group(1)
@@ -110,7 +110,7 @@ def register_tabchi_handler(client: TelegramClient):
         await event.edit("⚠️ کل اطلاعات و تنظیمات تبچی شما پاک و ریست شد.")
 
     # --- ۶. مدیریت گپ‌ها (حداکثر ۵ گپ) ---
-    @client.on(events.NewMessage(pattern=r'^\*تبچی گپ (@\S+)$'))
+    @client.on(events.NewMessage(pattern=r'^\*تبچی گپ\s+(@\S+)$'))
     async def add_tabchi_chat(event):
         user_id = event.sender_id
         chat_username = event.pattern_match.group(1).strip()
@@ -138,7 +138,7 @@ def register_tabchi_handler(client: TelegramClient):
         chats = [row["chat_username"] for row in res.data]
         await event.edit(f"💬 **گپ‌های تبچی شما (حداکثر ۵ عدد):**\n" + "\n".join([f"🔹 {c}" for c in chats]))
 
-    @client.on(events.NewMessage(pattern=r'^\*حذف تبچی گپ (@\S+)$'))
+    @client.on(events.NewMessage(pattern=r'^\*حذف تبچی گپ\s+(@\S+)$'))
     async def remove_tabchi_chat(event):
         user_id = event.sender_id
         chat_username = event.pattern_match.group(1).strip()
