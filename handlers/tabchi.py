@@ -139,78 +139,34 @@ def register_tabchi_handler(client: TelegramClient):
     async def tabchi_worker(client: TelegramClient, user_id: int):
         try:
             sent_to_this_chat = 0
-
-            while sent_to_this_chat < 10:
-
-                settings = await db_execute(
-                    supabase.table("tabchi_settings")
-                    .select("delay_seconds")
-                    .eq("user_id", user_id)
-                )
-
-                delay = (
-                    settings.data[0]["delay_seconds"]
-                    if settings.data and "delay_seconds" in settings.data[0]
-                    else 20
-                )
-
+            while True:
+                settings = await db_execute(supabase.table("tabchi_settings").select("delay_seconds").eq("user_id", user_id))
+                delay = settings.data[0]["delay_seconds"] if settings.data and "delay_seconds" in settings.data[0] else 20
                 delay = max(10, min(60, delay))
+                
+                chats_res = await db_execute(supabase.table("tabchi_chats").select("chat_username").eq("user_id", user_id))
+                # محدود کردن تعداد بنرهای دریافتی از دیتابیس به حداکثر ۱۰ عدد
+                banners_res = await db_execute(supabase.table("banners").select("banner_text").eq("user_id", user_id).limit(10))
+                
+                if chats_res.data and banners_res.data:
+                    chats = [c["chat_username"] for c in chats_res.data]
+                    banners = [b["banner_text"] for b in banners_res.data]
 
-                chats_res = await db_execute(
-                    supabase.table("tabchi_chats")
-                    .select("chat_username")
-                    .eq("user_id", user_id)
-                )
-
-                banners_res = await db_execute(
-                    supabase.table("banners")
-                    .select("banner_text")
-                    .eq("user_id", user_id)
-                    .limit(10)
-                )
-
-                if not chats_res.data or not banners_res.data:
-                    break
-
-                chat = chats_res.data[0]["chat_username"]
-                banners = [
-                    b["banner_text"]
-                    for b in banners_res.data
-                ]
-
-                # اگر بنرها کمتر از ۱۰ تا باشند
-                if sent_to_this_chat >= len(banners):
-                    print("❌ تعداد بنرها کمتر از ۱۰ عدد است")
-                    break
-
-                banner = banners[sent_to_this_chat]
-
-                try:
-                    await client.send_message(chat, banner)
-
-                    sent_to_this_chat += 1
-
-                    print(
-                        f"Sent {sent_to_this_chat}/10 to {chat}"
-                    )
-
-                except Exception as e:
-                    print(
-                        f"Tabchi Error "
-                        f"[User {user_id}] -> {chat}: {e}"
-                    )
-
-                # فقط اگر هنوز به ۱۰ نرسیده‌ایم صبر کن
-                if sent_to_this_chat < 10:
-                    await asyncio.sleep(delay)
-
-            print(
-                f"✅ Sending stopped after "
-                f"{sent_to_this_chat} banners"
-            )
-
+                    for chat in chats:
+                        for banner in banners:
+                            if sent_to_this_chat >= 10:
+                                break
+                            try:
+                                await client.send_message(chat, banner)
+                                sent_to_this_chat += 1
+                                await asyncio.sleep(1.5)
+                            except Exception as e:
+                                print(f"Tabchi Error [User {user_id}] -> {chat}: {e}")
+                
+                await asyncio.sleep(delay)
         except asyncio.CancelledError:
             pass
+
     @client.on(events.NewMessage(pattern=r'^\*تبچی روشن$'))
     async def turn_on_tabchi(event):
         user_id = event.sender_id
