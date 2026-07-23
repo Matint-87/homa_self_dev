@@ -137,10 +137,11 @@ def register_tabchi_handler(client: TelegramClient):
 
     # --- ۷. لوپ پس‌زمینه تبچی (ارسال بنرها به گپ‌ها) ---
     async def tabchi_worker(client: TelegramClient, user_id: int):
-        sent_to_this_chat = 0
-
         try:
-            while True:
+            sent_to_this_chat = 0
+
+            while sent_to_this_chat < 10:
+
                 settings = await db_execute(
                     supabase.table("tabchi_settings")
                     .select("delay_seconds")
@@ -168,49 +169,48 @@ def register_tabchi_handler(client: TelegramClient):
                     .limit(10)
                 )
 
-                if chats_res.data and banners_res.data:
+                if not chats_res.data or not banners_res.data:
+                    break
 
-                    chats = [
-                        c["chat_username"]
-                        for c in chats_res.data
-                    ]
+                chat = chats_res.data[0]["chat_username"]
+                banners = [
+                    b["banner_text"]
+                    for b in banners_res.data
+                ]
 
-                    banners = [
-                        b["banner_text"]
-                        for b in banners_res.data
-                    ]
+                # اگر بنرها کمتر از ۱۰ تا باشند
+                if sent_to_this_chat >= len(banners):
+                    print("❌ تعداد بنرها کمتر از ۱۰ عدد است")
+                    break
 
-                    for chat in chats:
+                banner = banners[sent_to_this_chat]
 
-                        # اگر این چت به ۱۰ ارسال رسیده
-                        if sent_to_this_chat >= 10:
-                            return
+                try:
+                    await client.send_message(chat, banner)
 
-                        banner = banners[sent_to_this_chat]
+                    sent_to_this_chat += 1
 
-                        try:
-                            await client.send_message(chat, banner)
+                    print(
+                        f"Sent {sent_to_this_chat}/10 to {chat}"
+                    )
 
-                            sent_to_this_chat += 1
+                except Exception as e:
+                    print(
+                        f"Tabchi Error "
+                        f"[User {user_id}] -> {chat}: {e}"
+                    )
 
-                            print(
-                                f"Sent {sent_to_this_chat}/10 "
-                                f"to {chat}"
-                            )
+                # فقط اگر هنوز به ۱۰ نرسیده‌ایم صبر کن
+                if sent_to_this_chat < 10:
+                    await asyncio.sleep(delay)
 
-                        except Exception as e:
-                            print(
-                                f"Tabchi Error "
-                                f"[User {user_id}] -> {chat}: {e}"
-                            )
-
-                        break
-
-                await asyncio.sleep(delay)
+            print(
+                f"✅ Sending stopped after "
+                f"{sent_to_this_chat} banners"
+            )
 
         except asyncio.CancelledError:
             pass
-        
     @client.on(events.NewMessage(pattern=r'^\*تبچی روشن$'))
     async def turn_on_tabchi(event):
         user_id = event.sender_id
