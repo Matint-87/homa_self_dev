@@ -388,7 +388,7 @@ async def handle_panel_clicks(update, context):
             [
                 # InlineKeyboardButton("فضول پروفایل", callback_data=f"sett_fozol_{owner_id}"),
                 InlineKeyboardButton("اطلاعات", callback_data=f"sett_info_{owner_id}"),
-                # InlineKeyboardButton("تبچی", callback_data=f"sett_tabchi_{owner_id}"),
+                InlineKeyboardButton("تبچی", callback_data=f"sett_tabchi_{owner_id}"),
                 InlineKeyboardButton("لوگو", callback_data=f"sett_logo_{owner_id}"),
                 InlineKeyboardButton("پروکسی", callback_data=f"sett_proxy_{owner_id}")
             ],
@@ -1487,13 +1487,25 @@ async def handle_panel_clicks(update, context):
         tabchi_text = (
             ">  دستورات\n"
             "\n"
-            ">  `*تنظیم تبلیغ`\n"
+            ">  `*تنظیم بنر`\n"
             "\n"
-            ">  `*روشن تبلیغ`\n"
+            ">  `*لیست بنر`\n"
             "\n"
-            ">  `*خاموش تبلیغ`\n"
+            ">  `*پاکسازی لیست بنر`\n"
             "\n"
-            ">  `*وضعیت تبلیغ`\n"
+            ">  `*پاکسازی کل تبچی`\n"
+            "\n"
+            ">  `*تبچی گپ`\n"
+            "\n"
+            ">  `*لیست تبچی گپ`\n"
+            "\n"
+            ">  `*حذف تبچی گپ`\n"
+            "\n"
+            ">  `*پاکسازی تبچی گپ`\n"
+            "\n"
+            ">  `*تبچی روشن`\n"
+            "\n"
+            ">  `*تبچی خاموش`\n"
 
         )
         

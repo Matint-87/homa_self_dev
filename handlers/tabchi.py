@@ -137,7 +137,7 @@ def register_tabchi_handler(client: TelegramClient):
         
         await event.edit(f"✅ گپ `{chat_username}` به لیست تبچی اضافه شد.")
 
-    @client.on(events.NewMessage(pattern=r'^\*لیست تبپی گپ$'))
+    @client.on(events.NewMessage(pattern=r'^\*لیست تبچی گپ$'))
     async def list_tabchi_chats(event):
         user_id = event.sender_id
         res = await db_execute(supabase.table("tabchi_chats").select("chat_username").eq("user_id", user_id))
