@@ -137,63 +137,80 @@ def register_tabchi_handler(client: TelegramClient):
 
     # --- ۷. لوپ پس‌زمینه تبچی (ارسال بنرها به گپ‌ها) ---
     async def tabchi_worker(client: TelegramClient, user_id: int):
+        sent_to_this_chat = 0
+
         try:
-            settings = await db_execute(
-                supabase.table("tabchi_settings")
-                .select("delay_seconds")
-                .eq("user_id", user_id)
-            )
+            while True:
+                settings = await db_execute(
+                    supabase.table("tabchi_settings")
+                    .select("delay_seconds")
+                    .eq("user_id", user_id)
+                )
 
-            delay = (
-                settings.data[0]["delay_seconds"]
-                if settings.data
-                and "delay_seconds" in settings.data[0]
-                else 20
-            )
+                delay = (
+                    settings.data[0]["delay_seconds"]
+                    if settings.data and "delay_seconds" in settings.data[0]
+                    else 20
+                )
 
-            delay = max(10, min(60, delay))
+                delay = max(10, min(60, delay))
 
-            chats_res = await db_execute(
-                supabase.table("tabchi_chats")
-                .select("chat_username")
-                .eq("user_id", user_id)
-            )
+                chats_res = await db_execute(
+                    supabase.table("tabchi_chats")
+                    .select("chat_username")
+                    .eq("user_id", user_id)
+                )
 
-            banners_res = await db_execute(
-                supabase.table("banners")
-                .select("banner_text")
-                .eq("user_id", user_id)
-                .limit(10)
-            )
+                banners_res = await db_execute(
+                    supabase.table("banners")
+                    .select("banner_text")
+                    .eq("user_id", user_id)
+                    .limit(10)
+                )
 
-            if not chats_res.data or not banners_res.data:
-                return
+                if chats_res.data and banners_res.data:
 
-            chats = [c["chat_username"] for c in chats_res.data]
-            banners = [b["banner_text"] for b in banners_res.data]
+                    chats = [
+                        c["chat_username"]
+                        for c in chats_res.data
+                    ]
 
-            for chat in chats:
+                    banners = [
+                        b["banner_text"]
+                        for b in banners_res.data
+                    ]
 
-                for banner in banners:
-                    try:
-                        await client.send_message(chat, banner)
-                        await asyncio.sleep(1.5)
+                    for chat in chats:
 
-                    except Exception as e:
-                        print(
-                            f"Tabchi Error [User {user_id}] "
-                            f"-> {chat}: {e}"
-                        )
+                        # اگر این چت به ۱۰ ارسال رسیده
+                        if sent_to_this_chat >= 10:
+                            return
 
-                # این چت ۱۰ بنر گرفت
-                # دیگر برای این چت ارسال نمی‌شود
-                print(f"✅ 10 banners sent to {chat}")
+                        banner = banners[sent_to_this_chat]
 
-                # فاصله قبل از چت بعدی
+                        try:
+                            await client.send_message(chat, banner)
+
+                            sent_to_this_chat += 1
+
+                            print(
+                                f"Sent {sent_to_this_chat}/10 "
+                                f"to {chat}"
+                            )
+
+                        except Exception as e:
+                            print(
+                                f"Tabchi Error "
+                                f"[User {user_id}] -> {chat}: {e}"
+                            )
+
+                        break
+
                 await asyncio.sleep(delay)
 
         except asyncio.CancelledError:
             pass
+        
     @client.on(events.NewMessage(pattern=r'^\*تبچی روشن$'))
     async def turn_on_tabchi(event):
         user_id = event.sender_id
