@@ -144,7 +144,8 @@ def register_tabchi_handler(client: TelegramClient):
                 delay = max(10, min(60, delay))
                 
                 chats_res = await db_execute(supabase.table("tabchi_chats").select("chat_username").eq("user_id", user_id))
-                banners_res = await db_execute(supabase.table("banners").select("banner_text").eq("user_id", user_id))
+                # محدود کردن تعداد بنرهای دریافتی از دیتابیس به حداکثر ۱۰ عدد
+                banners_res = await db_execute(supabase.table("banners").select("banner_text").eq("user_id", user_id).limit(10))
                 
                 if chats_res.data and banners_res.data:
                     chats = [c["chat_username"] for c in chats_res.data]
@@ -164,7 +165,7 @@ def register_tabchi_handler(client: TelegramClient):
                                 print(f"Tabchi Error [User {user_id}] -> {chat}: {e}")
                         
                         if total_sent_in_cycle >= 10:
-                            break  # خروج کامل از حلقه گپ‌ها وقتی سقف پر شد
+                            break
                 
                 await asyncio.sleep(delay)
         except asyncio.CancelledError:
@@ -192,7 +193,7 @@ def register_tabchi_handler(client: TelegramClient):
         # ۲. ایجاد تسک جدید تنها در صورتی که تسک فعالی وجود نداشته باشد
         active_tabchis[user_id] = asyncio.create_task(tabchi_worker(event.client, user_id))
         await event.edit(f"🟢 **تبچی روشن شد!**\n⏱️ سرعت پیش‌فرض: هر {delay} ثانیه یک‌بار.")
-        
+
     @client.on(events.NewMessage(pattern=r'^\*تبچی خاموش$'))
     async def turn_off_tabchi(event):
         user_id = event.sender_id
