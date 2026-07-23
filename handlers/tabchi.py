@@ -56,7 +56,7 @@ def register_tabchi_handler(client: TelegramClient):
             }, on_conflict="user_id")
         )
         await event.edit(f"⏱️ سرعت ارسال تبچی روی **{delay} ثانیه** تنظیم شد.")
-        
+
     # --- ۴. لیست بنرها ---
     @client.on(events.NewMessage(pattern=r'^\*لیست بنر$'))
     async def list_banners(event):
@@ -150,17 +150,21 @@ def register_tabchi_handler(client: TelegramClient):
                     chats = [c["chat_username"] for c in chats_res.data]
                     banners = [b["banner_text"] for b in banners_res.data]
                     
+                    total_sent_in_cycle = 0  # شمارشگر کل برای این دور
+                    
                     for chat in chats:
-                        sent_count = 0
                         for banner in banners:
-                            if sent_count >= 10:  
+                            if total_sent_in_cycle >= 10:  # سقف کل پیام‌ها در این دور
                                 break
                             try:
                                 await client.send_message(chat, banner)
-                                sent_count += 1
+                                total_sent_in_cycle += 1
                                 await asyncio.sleep(1.5)
                             except Exception as e:
                                 print(f"Tabchi Error [User {user_id}] -> {chat}: {e}")
+                        
+                        if total_sent_in_cycle >= 10:
+                            break
                 
                 await asyncio.sleep(delay)
         except asyncio.CancelledError:
