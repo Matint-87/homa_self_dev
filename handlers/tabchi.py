@@ -146,7 +146,8 @@ def register_tabchi_handler(client: TelegramClient):
 
             delay = (
                 settings.data[0]["delay_seconds"]
-                if settings.data and "delay_seconds" in settings.data[0]
+                if settings.data
+                and "delay_seconds" in settings.data[0]
                 else 20
             )
 
@@ -165,42 +166,34 @@ def register_tabchi_handler(client: TelegramClient):
                 .limit(10)
             )
 
-            if chats_res.data and banners_res.data:
+            if not chats_res.data or not banners_res.data:
+                return
 
-                chats = [c["chat_username"] for c in chats_res.data]
-                banners = [b["banner_text"] for b in banners_res.data]
+            chats = [c["chat_username"] for c in chats_res.data]
+            banners = [b["banner_text"] for b in banners_res.data]
 
-                for chat in chats:
+            for chat in chats:
 
-                    sent_to_this_chat = 0
+                for banner in banners:
+                    try:
+                        await client.send_message(chat, banner)
+                        await asyncio.sleep(1.5)
 
-                    for banner in banners:
+                    except Exception as e:
+                        print(
+                            f"Tabchi Error [User {user_id}] "
+                            f"-> {chat}: {e}"
+                        )
 
-                        if sent_to_this_chat >= 10:
-                            break
+                # این چت ۱۰ بنر گرفت
+                # دیگر برای این چت ارسال نمی‌شود
+                print(f"✅ 10 banners sent to {chat}")
 
-                        try:
-                            await client.send_message(chat, banner)
-
-                            sent_to_this_chat += 1
-
-                            await asyncio.sleep(1.5)
-
-                        except Exception as e:
-                            print(
-                                f"Tabchi Error [User {user_id}] "
-                                f"-> {chat}: {e}"
-                            )
-
-                    # توقف بین چت‌ها
-                    await asyncio.sleep(delay)
-
-            # بعد از تمام شدن ارسال، تابع تمام می‌شود
-            return
+                # فاصله قبل از چت بعدی
+                await asyncio.sleep(delay)
 
         except asyncio.CancelledError:
             pass
-
     @client.on(events.NewMessage(pattern=r'^\*تبچی روشن$'))
     async def turn_on_tabchi(event):
         user_id = event.sender_id
