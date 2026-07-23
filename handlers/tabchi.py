@@ -174,6 +174,10 @@ def register_tabchi_handler(client: TelegramClient):
     async def turn_on_tabchi(event):
         user_id = event.sender_id
         
+        # ۱. بررسی اینکه آیا از قبل تسکی برای این کاربر در حال اجراست یا خیر
+        if user_id in active_tabchis and not active_tabchis[user_id].done():
+            return await event.edit("⚠️ تبچی شما از قبل روشن است و در حال کار می‌باشد!")
+        
         settings = await db_execute(supabase.table("tabchi_settings").select("delay_seconds").eq("user_id", user_id))
         delay = settings.data[0]["delay_seconds"] if settings.data and "delay_seconds" in settings.data[0] else 20
         
@@ -185,12 +189,10 @@ def register_tabchi_handler(client: TelegramClient):
             }, on_conflict="user_id")
         )
         
-        if user_id in active_tabchis:
-            active_tabchis[user_id].cancel()
-            
+        # ۲. ایجاد تسک جدید تنها در صورتی که تسک فعالی وجود نداشته باشد
         active_tabchis[user_id] = asyncio.create_task(tabchi_worker(event.client, user_id))
         await event.edit(f"🟢 **تبچی روشن شد!**\n⏱️ سرعت پیش‌فرض: هر {delay} ثانیه یک‌بار.")
-
+        
     @client.on(events.NewMessage(pattern=r'^\*تبچی خاموش$'))
     async def turn_off_tabchi(event):
         user_id = event.sender_id
