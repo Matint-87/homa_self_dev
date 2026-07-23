@@ -151,21 +151,20 @@ def register_tabchi_handler(client: TelegramClient):
                     chats = [c["chat_username"] for c in chats_res.data]
                     banners = [b["banner_text"] for b in banners_res.data]
                     
-                    total_sent_in_cycle = 0
-                    
+                    # ✅ اصلاح شد: شمارنده حالا برای هر گپ جداگانه است (قبلاً مشترک بین همه‌ی گپ‌ها بود)
+                    # این باعث می‌شد سهمیه‌ی ۱۰ تایی بین چند گپ تقسیم شود و بعضی گپ‌ها اصلاً چیزی نگیرند،
+                    # و در طول چرخه‌های متوالی، مجموع ارسالی به یک گپ از ۱۰ تا فراتر برود.
                     for chat in chats:
+                        sent_to_this_chat = 0
                         for banner in banners:
-                            if total_sent_in_cycle >= 10:
+                            if sent_to_this_chat >= 10:
                                 break
                             try:
                                 await client.send_message(chat, banner)
-                                total_sent_in_cycle += 1
+                                sent_to_this_chat += 1
                                 await asyncio.sleep(1.5)
                             except Exception as e:
                                 print(f"Tabchi Error [User {user_id}] -> {chat}: {e}")
-                        
-                        if total_sent_in_cycle >= 10:
-                            break
                 
                 await asyncio.sleep(delay)
         except asyncio.CancelledError:
