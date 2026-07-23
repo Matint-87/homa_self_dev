@@ -56,33 +56,7 @@ def register_tabchi_handler(client: TelegramClient):
             }, on_conflict="user_id")
         )
         await event.edit(f"⏱️ سرعت ارسال تبچی روی **{delay} ثانیه** تنظیم شد.")
-
-    # --- ۳. ارسال یا فوروارد تکی بنر ذخیره‌شده ---
-    @client.on(events.NewMessage(pattern=r'^\*(ارسال|فوروارد)\s+بنر\s+([^\s]+)$'))
-    async def send_banner_action(event):
-        user_id = event.sender_id
-        action_type = event.pattern_match.group(1)
-        banner_name = event.pattern_match.group(2).strip()
         
-        res = await db_execute(
-            supabase.table("banners").select("banner_text").eq("user_id", user_id).eq("banner_name", banner_name)
-        )
-        if not res.data:
-            return await event.edit(f"❌ بنری با نام '{banner_name}' پیدا نشد.")
-        
-        text = res.data[0]["banner_text"]
-        
-        if action_type == "ارسال":
-            await event.respond(text)
-            await event.delete()
-        elif action_type == "فوروارد":
-            if event.is_reply:
-                reply_msg = await event.get_reply_message()
-                await reply_msg.forward_to(event.chat_id)
-            else:
-                await event.respond(text)
-            await event.delete()
-
     # --- ۴. لیست بنرها ---
     @client.on(events.NewMessage(pattern=r'^\*لیست بنر$'))
     async def list_banners(event):
@@ -179,7 +153,7 @@ def register_tabchi_handler(client: TelegramClient):
                     for chat in chats:
                         sent_count = 0
                         for banner in banners:
-                            if sent_count >= 10:  # محدودیت: حداکثر ارسال 10 بنر در هر دور برای هر گپ
+                            if sent_count >= 10:  
                                 break
                             try:
                                 await client.send_message(chat, banner)

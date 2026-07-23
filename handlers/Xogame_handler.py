@@ -268,7 +268,7 @@ async def handle_xo_clicks(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 )
                 + f"\n\n👑 برنده: {winner_name}\n"
                 f"💰 موجودی برنده: {winner_balance}\n"
-                f"💸 بازنده: {loser_name}\n"
+                f"🥶 بازنده: {loser_name}\n"
                 f"💰 موجودی بازنده: {loser_balance}",
                 parse_mode="HTML"
             )
