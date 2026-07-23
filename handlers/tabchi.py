@@ -138,35 +138,66 @@ def register_tabchi_handler(client: TelegramClient):
     # --- ۷. لوپ پس‌زمینه تبچی (ارسال بنرها به گپ‌ها) ---
     async def tabchi_worker(client: TelegramClient, user_id: int):
         try:
-            while True:
-                settings = await db_execute(supabase.table("tabchi_settings").select("delay_seconds").eq("user_id", user_id))
-                delay = settings.data[0]["delay_seconds"] if settings.data and "delay_seconds" in settings.data[0] else 20
-                delay = max(10, min(60, delay))
-                
-                chats_res = await db_execute(supabase.table("tabchi_chats").select("chat_username").eq("user_id", user_id))
-                # محدود کردن تعداد بنرهای دریافتی از دیتابیس به حداکثر ۱۰ عدد
-                banners_res = await db_execute(supabase.table("banners").select("banner_text").eq("user_id", user_id).limit(10))
-                
-                if chats_res.data and banners_res.data:
-                    chats = [c["chat_username"] for c in chats_res.data]
-                    banners = [b["banner_text"] for b in banners_res.data]
-                    
-                    # ✅ اصلاح شد: شمارنده حالا برای هر گپ جداگانه است (قبلاً مشترک بین همه‌ی گپ‌ها بود)
-                    # این باعث می‌شد سهمیه‌ی ۱۰ تایی بین چند گپ تقسیم شود و بعضی گپ‌ها اصلاً چیزی نگیرند،
-                    # و در طول چرخه‌های متوالی، مجموع ارسالی به یک گپ از ۱۰ تا فراتر برود.
-                    for chat in chats:
-                        sent_to_this_chat = 0
-                        for banner in banners:
-                            if sent_to_this_chat >= 10:
-                                break
-                            try:
-                                await client.send_message(chat, banner)
-                                sent_to_this_chat += 1
-                                await asyncio.sleep(1.5)
-                            except Exception as e:
-                                print(f"Tabchi Error [User {user_id}] -> {chat}: {e}")
-                
-                await asyncio.sleep(delay)
+            settings = await db_execute(
+                supabase.table("tabchi_settings")
+                .select("delay_seconds")
+                .eq("user_id", user_id)
+            )
+
+            delay = (
+                settings.data[0]["delay_seconds"]
+                if settings.data and "delay_seconds" in settings.data[0]
+                else 20
+            )
+
+            delay = max(10, min(60, delay))
+
+            chats_res = await db_execute(
+                supabase.table("tabchi_chats")
+                .select("chat_username")
+                .eq("user_id", user_id)
+            )
+
+            banners_res = await db_execute(
+                supabase.table("banners")
+                .select("banner_text")
+                .eq("user_id", user_id)
+                .limit(10)
+            )
+
+            if chats_res.data and banners_res.data:
+
+                chats = [c["chat_username"] for c in chats_res.data]
+                banners = [b["banner_text"] for b in banners_res.data]
+
+                for chat in chats:
+
+                    sent_to_this_chat = 0
+
+                    for banner in banners:
+
+                        if sent_to_this_chat >= 10:
+                            break
+
+                        try:
+                            await client.send_message(chat, banner)
+
+                            sent_to_this_chat += 1
+
+                            await asyncio.sleep(1.5)
+
+                        except Exception as e:
+                            print(
+                                f"Tabchi Error [User {user_id}] "
+                                f"-> {chat}: {e}"
+                            )
+
+                    # توقف بین چت‌ها
+                    await asyncio.sleep(delay)
+
+            # بعد از تمام شدن ارسال، تابع تمام می‌شود
+            return
+
         except asyncio.CancelledError:
             pass
 
