@@ -150,11 +150,11 @@ def register_tabchi_handler(client: TelegramClient):
                     chats = [c["chat_username"] for c in chats_res.data]
                     banners = [b["banner_text"] for b in banners_res.data]
                     
-                    total_sent_in_cycle = 0  # شمارشگر کل برای این دور
+                    total_sent_in_cycle = 0
                     
                     for chat in chats:
                         for banner in banners:
-                            if total_sent_in_cycle >= 10:  # سقف کل پیام‌ها در این دور
+                            if total_sent_in_cycle >= 10:
                                 break
                             try:
                                 await client.send_message(chat, banner)
@@ -164,7 +164,7 @@ def register_tabchi_handler(client: TelegramClient):
                                 print(f"Tabchi Error [User {user_id}] -> {chat}: {e}")
                         
                         if total_sent_in_cycle >= 10:
-                            break
+                            break  # خروج کامل از حلقه گپ‌ها وقتی سقف پر شد
                 
                 await asyncio.sleep(delay)
         except asyncio.CancelledError:
